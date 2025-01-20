@@ -18,7 +18,7 @@ app.use(express.json())
 app.use(express.urlencoded({ urlencoded: true }))
 app.use(cookieParser())
 app.use(cors({
-    origin: "https://44r931k1-5173.inc1.devtunnels.ms",
+    origin: process.env.CORS_ACCESS,
     credentials: true
 }))
 
