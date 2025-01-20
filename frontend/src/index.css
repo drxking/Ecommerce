@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: satoshi;
+  src: url("/Satoshi-Variable.ttf");
+}
+@font-face {
+  font-family: panchang;
+  src: url("/Panchang-Variable.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: satoshi;
+}
+
+.no-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes gradientLoading {
+  0% {
+    background-position: -200% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.image-loader {
+  background: linear-gradient(90deg, #999, #666, #999);
+  background-size: 400% 100%;
+  animation: gradientLoading 3s linear infinite;
+}
