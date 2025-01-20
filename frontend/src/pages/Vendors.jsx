@@ -157,7 +157,7 @@ const Vendors = () => {
                   key={items.name}
                   className={
                     index == data.length - 1
-                      ? "text-xs inline-block align-middle   px-2 py-1 w-full"
+                      ? "text-xs inline-block align-middle pb-4  px-2 py-1 w-full"
                       : "  text-xs inline-block align-middle   px-2 py-1 w-full"
                   }
                 >
@@ -192,8 +192,8 @@ const Vendors = () => {
                   id={`drop-${index}`}
                   className={
                     index === data.length - 1
-                      ? `text-xs   hidden  py-4 overflow-hidden w-full align-bottom `
-                      : `text-xs   hidden  py-4 overflow-hidden w-full align-bottom border-b border-gray-200 `
+                      ? `text-xs   hidden  py-4 pt-1 overflow-hidden w-full align-bottom `
+                      : `text-xs   hidden  py-4  overflow-hidden w-full align-bottom border-b border-gray-200 `
                   }
                 >
                   <td className="inline-block w-[10%] pl-6   font-medium text-start">
