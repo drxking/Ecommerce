@@ -4,6 +4,8 @@ import axios from "axios";
 const AddCollection = ({ open, handleClose, handleUpload }) => {
   let [file, setfile] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [fetchedTypes, setfetchedTypes] = useState([]);
+  const [selectedTypes, setselectedTypes] = useState([]);
 
   let name = useRef();
   let image = useRef();
@@ -46,7 +48,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       reader.onload = function (e) {
         preview.current.src = e.target.result;
         preview.current.style.opacity = 1;
-        console.log(e.target.result);
       };
 
       reader.readAsDataURL(file);
@@ -84,24 +85,43 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     }
   }
 
-  
   let timeout;
   async function handleType() {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       let text = type.current.value;
-      if (text.trim() === '') return; // Check if the text is blank and exit if true
-      console.log(text);
+      if (text.trim() === "") return setfetchedTypes([]);
       let response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/types/search?type=${text}`,
         {
           withCredentials: true,
         }
       );
-      console.log(response);
+      if (response.data.status == "success") {
+        setfetchedTypes(response.data.data);
+      } else {
+        setfetchedTypes([]);
+      }
     }, 700);
   }
 
+  function handleTypeClick(i) {
+    setselectedTypes((e) => [...e, i]);
+  }
+  function handleTypeClickRemove(e) {
+    if (selectedTypes.length > 1) {
+      selectedTypes.forEach((i, index) => {
+        if (i._id == e._id) {
+          const removed = selectedTypes.splice(index, 1);
+          setselectedTypes(removed);
+        }
+      });
+    } else {
+      setselectedTypes([]);
+    }
+  }
+  useEffect(() => {
+  }, [selectedTypes]);
   return (
     <div
       ref={popup}
@@ -131,7 +151,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </label>
             <input
               ref={name}
-              className="p-2 px-2 border  border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+              className="p-2 border  border-gray-300 w-full focus:outline-none rounded-lg text-sm"
               placeholder="Mens Collection"
               id="name"
               type="text"
@@ -145,15 +165,61 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             >
               Type
             </label>
-            <div className="w-full">
+            <div className="w-full relative">
+              {selectedTypes.length != 0 ? (
+                <div className="flex items-center py-1">
+                  {selectedTypes.map((tp) => (
+                    <span className="text-sm bg-black rounded-full relative p-1  px-3 pr-7 mr-1 inline-block text-white">
+                      {tp.name}
+                      <i
+                        onClick={() => handleTypeClickRemove(tp)}
+                        class="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
+                      ></i>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                ""
+              )}
               <input
                 onChange={handleType}
                 ref={type}
-                className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+                className="p-2 border border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
                 placeholder="Search 'T-shirt' "
                 id="type"
                 type="text"
               />
+              {fetchedTypes.length != 0 ? (
+                <div
+                  id="dropdown-type"
+                  style={{ boxShadow: "0 0 2px #222" }}
+                  className=" w-full absolute flex flex-col  bg-white rounded-lg"
+                >
+                  {fetchedTypes.map((ty, index) =>
+                    selectedTypes.some((item) => item._id === ty._id) ? (
+                      <p key={index} className="hidden">
+                        {ty.name}
+                      </p>
+                    ) : (
+                      <p
+                        key={index}
+                        onClick={() => {
+                          handleTypeClick(ty);
+                        }}
+                        className={
+                          index == 0
+                            ? "p-2 text-sm border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                            : "p-2 text-sm border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                        }
+                      >
+                        {ty.name}
+                      </p>
+                    )
+                  )}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </div>
           <div className="border-t flex gap-6 pt-3  border-gray-200 py-2">
@@ -165,7 +231,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </label>
             <input
               ref={products}
-              className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+              className="p-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
               placeholder="Search 'Hoodie'"
               id="products"
               type="text"
@@ -181,7 +247,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
 
             <div className="w-full px-5">
               <input
-                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
+                className="p-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
                 placeholder="Los Angeles"
                 id="image"
                 type="file"

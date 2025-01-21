@@ -11,6 +11,7 @@ module.exports.getSearchType = async (req, res) => {
             "status": "success",
             "data": types
         })
+        console.log(types)
     } else {
         res.send({
             "message": "Type Not Found",
