@@ -3,9 +3,13 @@ import axios from "axios";
 
 const AddCollection = ({ open, handleClose, handleUpload }) => {
   let [file, setfile] = useState(null);
+  const [first, setfirst] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fetchedTypes, setfetchedTypes] = useState([]);
   const [selectedTypes, setselectedTypes] = useState([]);
+
+  const [fetchedProducts, setfetchedProducts] = useState([]);
+  const [selectedProducts, setselectedProducts] = useState([]);
 
   let name = useRef();
   let image = useRef();
@@ -19,12 +23,15 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     if (open) {
       popup.current.style.opacity = 1;
       popup.current.style.pointerEvents = "unset";
+
+      console.log(selectedProducts,selectedTypes)
     } else {
       popup.current.style.opacity = 0;
       popup.current.style.pointerEvents = "none";
       clearForm();
     }
-  });
+  }, [open]);
+
   function clearForm() {
     name.current.value = "";
     type.current.value = "";
@@ -32,6 +39,10 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     setfile(null);
     preview.current.src = "";
     preview.current.style.opacity = 0;
+    setselectedProducts([]);
+    setselectedTypes([]);
+    setfetchedProducts([])
+    setfetchedTypes([])
   }
 
   function handleImageClick() {
@@ -88,9 +99,9 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   let timeout;
   async function handleType() {
     clearTimeout(timeout);
+    let text = type.current.value;
+    if (text.trim() === "") return setfetchedTypes([]);
     timeout = setTimeout(async () => {
-      let text = type.current.value;
-      if (text.trim() === "") return setfetchedTypes([]);
       let response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/types/search?type=${text}`,
         {
@@ -108,20 +119,57 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   function handleTypeClick(i) {
     setselectedTypes((e) => [...e, i]);
   }
+
   function handleTypeClickRemove(e) {
     if (selectedTypes.length > 1) {
       selectedTypes.forEach((i, index) => {
         if (i._id == e._id) {
-          const removed = selectedTypes.splice(index, 1);
-          setselectedTypes(removed);
+          const newArray = selectedTypes.filter((_, i) => i !== index);
+          setselectedTypes(newArray);
         }
       });
     } else {
       setselectedTypes([]);
     }
   }
-  useEffect(() => {
-  }, [selectedTypes]);
+
+  let timeout1;
+  async function handleProduct() {
+    clearTimeout(timeout1);
+    let text = products.current.value;
+    if (text.trim() === "") return setfetchedProducts([]);
+    timeout1 = setTimeout(async () => {
+      let response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/products/search?product=${text}`,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.data.status == "success") {
+        setfetchedProducts(response.data.data);
+        console.log(response.data.data);
+      } else {
+        setfetchedProducts([]);
+      }
+    }, 700);
+  }
+
+  function handleProductClick(i) {
+    setselectedProducts((e) => [...e, i]);
+  }
+
+  function handleProductClickRemove(e) {
+    if (selectedProducts.length > 1) {
+      selectedProducts.forEach((i, index) => {
+        if (i._id == e._id) {
+          const newArray = selectedProducts.filter((_, i) => i !== index);
+          setselectedProducts(newArray);
+        }
+      });
+    } else {
+      setselectedProducts([]);
+    }
+  }
   return (
     <div
       ref={popup}
@@ -167,13 +215,16 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </label>
             <div className="w-full relative">
               {selectedTypes.length != 0 ? (
-                <div className="flex items-center py-1">
-                  {selectedTypes.map((tp) => (
-                    <span className="text-sm bg-black rounded-full relative p-1  px-3 pr-7 mr-1 inline-block text-white">
+                <div className="flex flex-wrap gap-1 items-center py-1">
+                  {selectedTypes.map((tp, index) => (
+                    <span
+                      key={index}
+                      className="text-sm bg-black rounded-full relative p-1  px-3 pr-7 inline-block text-white"
+                    >
                       {tp.name}
                       <i
                         onClick={() => handleTypeClickRemove(tp)}
-                        class="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
+                        className="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
                       ></i>
                     </span>
                   ))}
@@ -182,6 +233,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
                 ""
               )}
               <input
+                autoComplete="off"
                 onChange={handleType}
                 ref={type}
                 className="p-2 border border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
@@ -193,7 +245,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
                 <div
                   id="dropdown-type"
                   style={{ boxShadow: "0 0 2px #222" }}
-                  className=" w-full absolute flex flex-col  bg-white rounded-lg"
+                  className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
                 >
                   {fetchedTypes.map((ty, index) =>
                     selectedTypes.some((item) => item._id === ty._id) ? (
@@ -222,20 +274,83 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
               )}
             </div>
           </div>
-          <div className="border-t flex gap-6 pt-3  border-gray-200 py-2">
+
+          <div className="border-t  flex gap-6 pt-3  border-gray-200 py-2">
             <label
               htmlFor="products"
               className="text-sm w-[40%] font-semibold text-gray-800"
             >
               Products
             </label>
-            <input
-              ref={products}
-              className="p-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-              placeholder="Search 'Hoodie'"
-              id="products"
-              type="text"
-            />
+            <div className="relative w-full">
+              {selectedProducts.length != 0 ? (
+                <div className="flex flex-wrap gap-1 max-h-32 overflow-scroll no-scroller items-center py-1">
+                  {selectedProducts.map((tp, index) => (
+                    <span
+                      key={index}
+                      className="text-sm bg-black max-w-40 rounded-full relative truncate p-1  px-3  pl-7 pr-7   inline-block text-white"
+                    >
+                      <img
+                        className="inline-block text-xs h-5 w-5  absolute left-1 object-cover rounded-full top-1/2 -translate-y-1/2"
+                        src={tp.imageLink}
+                        alt={tp.name}
+                      />
+                      {tp.name}
+                      <i
+                        onClick={() => handleProductClickRemove(tp)}
+                        className="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
+                      ></i>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                ""
+              )}
+              <input
+                autoComplete="off"
+                onChange={handleProduct}
+                ref={products}
+                className="p-2 border  border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+                placeholder="Search 'Graphic Hoodie'"
+                id="products"
+                type="text"
+              />
+              {fetchedProducts.length != 0 ? (
+                <div
+                  id="dropdown-product"
+                  style={{ boxShadow: "0 0 2px #222" }}
+                  className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
+                >
+                  {fetchedProducts.map((ty, index) =>
+                    selectedProducts.some((item) => item._id === ty._id) ? (
+                      <p key={index} className="hidden">
+                        {ty.name}
+                      </p>
+                    ) : (
+                      <p
+                        key={index}
+                        onClick={() => {
+                          handleProductClick(ty);
+                        }}
+                        className={
+                          index == 0
+                            ? "p-2 text-sm flex items-center gap-2 border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                            : "p-2 text-sm flex items-center gap-2 border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                        }
+                      >
+                        <img
+                          className="h-8 object-cover min-w-8 rounded-full border border-gray-200"
+                          src={ty.imageLink}
+                        />
+                        <span>{ty.name}</span>
+                      </p>
+                    )
+                  )}
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
           </div>
           <div className="border-t flex gap-6 pt-3  border-gray-200 py-2">
             <label
