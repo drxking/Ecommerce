@@ -7,7 +7,7 @@ module.exports.getAllProducts = async (req, res) => {
     try {
         const products = await productModel.aggregate([
             {
-                $project: { name: 1, price: 1, imageLink: 1, views: 1 },
+                $project: { name: 1, price: 1, imageLink: 1, views: 1, description: 1 },
             },
         ]);
         res.json(products);
@@ -30,10 +30,6 @@ module.exports.getProduct = async (req, res) => {
         if (!product) {
             return res.status(404).json({ error: "Product not found" });
         }
-
-        // Increment views
-        product.views += 1;
-        await product.save();
 
         res.json(product);
     } catch (err) {

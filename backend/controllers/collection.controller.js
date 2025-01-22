@@ -56,7 +56,7 @@ module.exports.getCollectionWithPopulatedTypeAndProduct = async (req, res) => {
     try {
         let collections = await collectionModel.find().populate({
             path: 'type',
-            options: { limit: 3}
+            options: { limit: 3 }
         }).populate({
             path: 'products',
             options: { limit: 2 }
@@ -68,6 +68,38 @@ module.exports.getCollectionWithPopulatedTypeAndProduct = async (req, res) => {
         })
 
     } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            "message": "Internal Server Error",
+            "status": "failed",
+            "error": err.message
+        })
+    }
+}
+
+
+module.exports.getOneCollection = async (req, res) => {
+    let { id } = req.params
+    try {
+        let collection = await collectionModel.findOne({ _id: id }).populate(
+            {
+                path: "products",
+                limit: 8
+            }
+        ).populate(
+            {
+                path: "type"
+            }
+        )
+        if (collection) {
+            res.json({
+                "message": "Fetched Collection Successfully",
+                "status": "success",
+                "data": collection
+            })
+        }
+    }
+    catch (err) {
         console.log(err)
         return res.status(500).json({
             "message": "Internal Server Error",

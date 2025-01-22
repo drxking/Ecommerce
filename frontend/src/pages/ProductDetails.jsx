@@ -76,9 +76,6 @@ const Home = () => {
                 />
                 <p className="font-semibold text-sm">{product?.vendor?.name}</p>
               </div>
-              <div className="text-sm text-gray-500 font-semibold right">
-                {product?.views} People viewed
-              </div>
             </div>
             <div className="py-5">
               <h1 className="text-3xl font-bold">{product.name}</h1>
@@ -133,7 +130,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <p className="text-2xl font-semibold">Customer Reviews</p>
           <div className="user mt-10">
             <div className=" flex text-[#e0be4c] items-center">
@@ -222,7 +219,7 @@ const Home = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

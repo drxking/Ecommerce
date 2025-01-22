@@ -151,7 +151,7 @@ const Vendors = () => {
           </thead>
           <tbody className="w-full  rounded-tr-3xl rounded-b-3xl bg-gray-200/50  ">
             {data?.map((items, index) => (
-              <div key={index}>
+              <React.Fragment key={items.name}>
                 <tr
                   key={items.name}
                   className={
@@ -336,7 +336,7 @@ const Vendors = () => {
                     </div>
                   </td>
                 </tr>
-              </div>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

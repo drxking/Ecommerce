@@ -86,7 +86,7 @@ const AdminCollection = () => {
         ) : (
           data.map((e) => (
             <Link
-            to={`/admin/collections/${e.name}`}
+            to={`/admin/collections/${e._id}`}
               key={e.name}
               className="md:w-72 p-4 w-full  bg-gray-200 rounded-3xl "
             >
@@ -116,13 +116,15 @@ const AdminCollection = () => {
                   {e.products.map((i) => (
                     <li
                       key={i.name}
-                      className="capitalize pr-3 p-1 flex font-thin tracking-wide gap-1 items-center bg-gray-700 text-xs text-white rounded-full"
+                      className=" max-w-full p-1 flex font-thin tracking-wide gap-1 items-center bg-gray-700 text-xs text-white rounded-full"
                     >
                       <img
                         src={i.imageLink}
-                        className="h-5 w-5 rounded-full object-cover"
+                        className="h-5 w-5 min-w-5 rounded-full object-cover"
                       />
+                      <p className="capitalize truncate">
                       {i.name}
+                      </p>
                     </li>
                   ))}
                 </div>

@@ -39,11 +39,7 @@ let productSchema = mongoose.Schema({
         {
             type: String
         }
-    ],
-    views: {
-        type: Number,
-        default : 0
-    }
+    ]
 })
 
 module.exports = mongoose.model("product", productSchema);

@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Card from "../components/Card";
 import axios from "axios";
 import Loader from "../components/Loader";
+import { useProducts } from "../components/ProductsProvider";
 
 let links = [
   {
@@ -24,22 +25,12 @@ let links = [
 ];
 
 const Home = () => {
-  let [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    async function fetcher() {
-      let product = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/products`
-      );
-      setProducts(product.data);
-      setIsLoading(false);
-    }
-    fetcher();
-  }, []);
+  const products = useProducts();
+
 
   return (
     <>
-      <Navbar links={links}/>
+      <Navbar links={links} />
       <div className="flex flex-col items-center sm:p-10 p-2">
         <h2 className="uppercase text-[14vw] mt-10 sm:mt-0 font-bold leading-none sm:text-5xl sm:font-medium text-center">
           Latest Clothing Collection
@@ -50,7 +41,9 @@ const Home = () => {
         </p>
       </div>
       <div className="p-4 flex gap-8 justify-center flex-wrap ">
-        {isLoading ? (
+        {products ? (
+          products?.map((e, index) => <Card key={index} {...e}></Card>)
+        ) : (
           <>
             <Loader />
             <Loader />
@@ -58,10 +51,6 @@ const Home = () => {
             <Loader />
             <Loader />
           </>
-        ) : products ? (
-          products?.map((e, index) => <Card key={index} {...e}></Card>)
-        ) : (
-          ""
         )}
       </div>
     </>

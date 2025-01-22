@@ -90,7 +90,7 @@ const Login = () => {
                 to="/"
                 className="p-2 bg-white/20 rounded-full px-4 md:px-6 text-sm flex items-center gap-1"
               >
-                <i class="ri-arrow-left-line text-xl"></i> Back to website
+                <i className="ri-arrow-left-line text-xl"></i> Back to website
               </Link>
             </div>
             <div className="bottom  justify-between flex flex-col items-center">
