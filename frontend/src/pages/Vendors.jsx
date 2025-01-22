@@ -76,7 +76,6 @@ const Vendors = () => {
           withCredentials: true,
         }
       );
-      console.log(response);
       if (response.data.status == "success") {
         setrerender((e) => !e);
         handleDropClose(args[9]);

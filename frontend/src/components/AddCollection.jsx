@@ -2,8 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 
 const AddCollection = ({ open, handleClose, handleUpload }) => {
-  let [file, setfile] = useState(null);
-  const [first, setfirst] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fetchedTypes, setfetchedTypes] = useState([]);
   const [selectedTypes, setselectedTypes] = useState([]);
@@ -12,19 +10,19 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   const [selectedProducts, setselectedProducts] = useState([]);
 
   let name = useRef();
-  let image = useRef();
   let type = useRef();
   let products = useRef();
+  let dropdown_type = useRef();
+  let dropdown_product = useRef();
 
   const popup = useRef(null);
-  const preview = useRef(null);
 
   useEffect(() => {
     if (open) {
       popup.current.style.opacity = 1;
       popup.current.style.pointerEvents = "unset";
 
-      console.log(selectedProducts,selectedTypes)
+      console.log(selectedProducts, selectedTypes);
     } else {
       popup.current.style.opacity = 0;
       popup.current.style.pointerEvents = "none";
@@ -36,49 +34,31 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     name.current.value = "";
     type.current.value = "";
     products.current.value = "";
-    setfile(null);
-    preview.current.src = "";
-    preview.current.style.opacity = 0;
     setselectedProducts([]);
     setselectedTypes([]);
-    setfetchedProducts([])
-    setfetchedTypes([])
+    setfetchedProducts([]);
+    setfetchedTypes([]);
   }
 
-  function handleImageClick() {
-    image.current.click();
-  }
-
-  function handleImageChange(event) {
-    const file = event.target.files[0];
-    setfile(event.target.files[0]);
-    if (file) {
-      const reader = new FileReader();
-
-      // When the file is loaded, update the img src and make it visible
-      reader.onload = function (e) {
-        preview.current.src = e.target.result;
-        preview.current.style.opacity = 1;
-      };
-
-      reader.readAsDataURL(file);
-    }
-  }
   async function handleSubmit(event) {
     event.preventDefault();
     setSubmitted(true);
 
+    let shouldSendType = selectedTypes.map((e) => {
+      return e._id;
+    });
+    let shouldSendProduct = selectedProducts.map((e) => {
+      return e._id;
+    });
     try {
       let response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/vendors/addvendor`,
+        `${import.meta.env.VITE_BASE_URL}/collections`,
         {
           name: name.current.value,
-          image: file,
+          type: shouldSendType,
+          products: shouldSendProduct,
         },
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
           withCredentials: true,
         }
       );
@@ -91,8 +71,17 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
         setSubmitted(false);
       }
     } catch (err) {
-      console.log(err);
       setSubmitted(false);
+      if (err.response.status == 400) {
+        name.current.style.borderColor = "red";
+        type.current.style.borderColor = "red";
+        products.current.style.borderColor = "red";
+        setTimeout(() => {
+          name.current.style.borderColor = "#D1D5DB";
+          type.current.style.borderColor = "#D1D5DB";
+          products.current.style.borderColor = "#D1D5DB";
+        }, 1000);
+      }
     }
   }
 
@@ -113,11 +102,12 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       } else {
         setfetchedTypes([]);
       }
-    }, 700);
+    }, 400);
   }
 
   function handleTypeClick(i) {
     setselectedTypes((e) => [...e, i]);
+    dropdown_type.current.style.display = "none";
   }
 
   function handleTypeClickRemove(e) {
@@ -151,11 +141,12 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       } else {
         setfetchedProducts([]);
       }
-    }, 700);
+    }, 400);
   }
 
   function handleProductClick(i) {
     setselectedProducts((e) => [...e, i]);
+    dropdown_product.current.style.display = "none";
   }
 
   function handleProductClickRemove(e) {
@@ -199,7 +190,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </label>
             <input
               ref={name}
-              className="p-2 border  border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+              className="p-2 border duration-500 border-gray-300 w-full focus:outline-none rounded-lg text-sm"
               placeholder="Mens Collection"
               id="name"
               type="text"
@@ -236,42 +227,39 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
                 autoComplete="off"
                 onChange={handleType}
                 ref={type}
-                className="p-2 border border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
+                onFocus={() => (dropdown_type.current.style.display = "flex")}
+                className="p-2 border duration-500 border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
                 placeholder="Search 'T-shirt' "
                 id="type"
                 type="text"
               />
-              {fetchedTypes.length != 0 ? (
-                <div
-                  id="dropdown-type"
-                  style={{ boxShadow: "0 0 2px #222" }}
-                  className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
-                >
-                  {fetchedTypes.map((ty, index) =>
-                    selectedTypes.some((item) => item._id === ty._id) ? (
-                      <p key={index} className="hidden">
-                        {ty.name}
-                      </p>
-                    ) : (
-                      <p
-                        key={index}
-                        onClick={() => {
-                          handleTypeClick(ty);
-                        }}
-                        className={
-                          index == 0
-                            ? "p-2 text-sm border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                            : "p-2 text-sm border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                        }
-                      >
-                        {ty.name}
-                      </p>
-                    )
-                  )}
-                </div>
-              ) : (
-                ""
-              )}
+              <div
+                ref={dropdown_type}
+                style={{ boxShadow: "0 0 2px #222" }}
+                className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
+              >
+                {fetchedTypes.map((ty, index) =>
+                  selectedTypes.some((item) => item._id === ty._id) ? (
+                    <p key={index} className="hidden">
+                      {ty.name}
+                    </p>
+                  ) : (
+                    <p
+                      key={index}
+                      onClick={() => {
+                        handleTypeClick(ty);
+                      }}
+                      className={
+                        index == 0
+                          ? "p-2 text-sm border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                          : "p-2 text-sm border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                      }
+                    >
+                      {ty.name}
+                    </p>
+                  )
+                )}
+              </div>
             </div>
           </div>
 
@@ -309,79 +297,49 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
               <input
                 autoComplete="off"
                 onChange={handleProduct}
+                onFocus={() =>
+                  (dropdown_product.current.style.display = "flex")
+                }
                 ref={products}
-                className="p-2 border  border-gray-300 w-full focus:outline-none rounded-lg text-sm"
+                className="p-2 border duration-500 border-gray-300 w-full focus:outline-none rounded-lg text-sm"
                 placeholder="Search 'Graphic Hoodie'"
                 id="products"
                 type="text"
               />
-              {fetchedProducts.length != 0 ? (
-                <div
-                  id="dropdown-product"
-                  style={{ boxShadow: "0 0 2px #222" }}
-                  className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
-                >
-                  {fetchedProducts.map((ty, index) =>
-                    selectedProducts.some((item) => item._id === ty._id) ? (
-                      <p key={index} className="hidden">
-                        {ty.name}
-                      </p>
-                    ) : (
-                      <p
-                        key={index}
-                        onClick={() => {
-                          handleProductClick(ty);
-                        }}
-                        className={
-                          index == 0
-                            ? "p-2 text-sm flex items-center gap-2 border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                            : "p-2 text-sm flex items-center gap-2 border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                        }
-                      >
-                        <img
-                          className="h-8 object-cover min-w-8 rounded-full border border-gray-200"
-                          src={ty.imageLink}
-                        />
-                        <span>{ty.name}</span>
-                      </p>
-                    )
-                  )}
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-          </div>
-          <div className="border-t flex gap-6 pt-3  border-gray-200 py-2">
-            <label
-              htmlFor="image"
-              className="text-sm w-[40%] font-semibold text-gray-800"
-            >
-              Photo
-            </label>
-
-            <div className="w-full px-5">
-              <input
-                className="p-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
-                placeholder="Los Angeles"
-                id="image"
-                type="file"
-                ref={image}
-                required={true}
-                onChange={handleImageChange}
-              />
               <div
-                onClick={handleImageClick}
-                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+                ref={dropdown_product}
+                style={{ boxShadow: "0 0 2px #222" }}
+                className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
               >
-                <i className="ri-image-add-line text-2xl"></i>
-                <img
-                  ref={preview}
-                  className="h-full w-full object-cover absolute z-10 opacity-0"
-                />
+                {fetchedProducts.map((ty, index) =>
+                  selectedProducts.some((item) => item._id === ty._id) ? (
+                    <p key={index} className="hidden">
+                      {ty.name}
+                    </p>
+                  ) : (
+                    <p
+                      key={index}
+                      onClick={() => {
+                        handleProductClick(ty);
+                      }}
+                      className={
+                        index == 0
+                          ? "p-2 text-sm flex items-center gap-2 border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                          : "p-2 text-sm flex items-center gap-2 border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
+                      }
+                    >
+                      <img
+                        className="h-8 object-cover min-w-8 rounded-full border border-gray-200"
+                        src={ty.imageLink}
+                      />
+                      <span>{ty.name}</span>
+                    </p>
+                  )
+                )}
               </div>
             </div>
           </div>
+
           <div className="flex justify-end">
             <button
               id="submit"

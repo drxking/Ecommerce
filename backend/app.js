@@ -11,6 +11,8 @@ let adminRouter = require("./routes/admin.router")
 let utilsRouter = require("./routes/utlis.router")
 let vendorRouter = require("./routes/vendor.router")
 let typeRouter = require("./routes/type.router")
+let collectionRouter = require("./routes/collection.router")
+
 
 let app = express()
 app.use(morgan('dev'))
@@ -29,6 +31,8 @@ app.use("/admin", adminRouter)
 app.use("/utils", utilsRouter)
 app.use("/vendors", vendorRouter)
 app.use("/types", typeRouter)
+app.use("/collections", collectionRouter)
+
 
 app.use("*", (req, res) => {
     res.status(404).send({
