@@ -18,8 +18,22 @@ const AdminRouter = () => {
         }
       />
       <Route path="/login" element={<AdminLogin />} />
-      <Route path="/vendors" element={<Vendors />} />
-      <Route path="/collections" element={<AdminCollection />} />
+      <Route
+        path="/vendors"
+        element={
+          <AdminAuthenticator>
+            <Vendors />
+          </AdminAuthenticator>
+        }
+      />
+      <Route
+        path="/collections"
+        element={
+          <AdminAuthenticator>
+            <AdminCollection />
+          </AdminAuthenticator>
+        }
+      />
     </Routes>
   );
 };

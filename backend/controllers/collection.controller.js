@@ -57,7 +57,6 @@ module.exports.getAllCollection = async (req, res) => {
 
 module.exports.getPureCollection = async (req, res) => {
     try {
-        console.log(req)
         let collections = await collectionModel.aggregate([
             { $project: { name: 1, thumbnailImageLink: 1, bannerImageLink: 1 } }
         ])
