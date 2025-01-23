@@ -46,7 +46,7 @@ const AdminCollection = () => {
         handleClose={handleClose}
       />
       <AdminNav />
-      <div className="hero flex items-center justify-between md:px-20 px-4 py-4 ">
+      <div className="hero flex items-center justify-between md:px-5 px-4 py-4 ">
         <h2 className="font-[900] flex md:flex-row flex-col md:gap-3 md:text-2xl  uppercase">
           <p className="font-[panchang] leading-[1]">Your</p>{" "}
           <p className="font-[panchang] leading-[1]">Collections</p>
@@ -64,7 +64,7 @@ const AdminCollection = () => {
       </div>
       <div
         className={
-          "w-full  py-4 flex-1  justify-start px-5 md:px-20 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  p-4"
+          "w-full  py-4 flex-1  justify-start px-5 md:px-5 gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  p-4"
         }
       >
         {isLoading ? (
