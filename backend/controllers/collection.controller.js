@@ -36,6 +36,25 @@ module.exports.addCollection = async (req, res) => {
 
 }
 
+module.exports.getThreeCollection = async (req, res) => {
+    try {
+
+        let collections = await collectionModel.find().limit(3)
+        res.json({
+            "message": "Fetched Collection",
+            "status": "success",
+            "data": collections
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            "message": "Internal Server Error",
+            "status": "failed",
+            "error": err.message
+        })
+    }
+}
+
 module.exports.getAllCollection = async (req, res) => {
     try {
         let collections = await collectionModel.find().populate('type').populate("products")

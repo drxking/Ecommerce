@@ -116,7 +116,7 @@ const Home = () => {
                 <img
                   loading="lazy"
                   onClick={handleClick}
-                  className="w-28 h-32 smooth cursor-pointer object-cover rounded-xl border border-gray-200"
+                  className="w-24 h-32 smooth cursor-pointer object-cover border border-gray-200"
                   key={index}
                   src={e}
                 ></img>

@@ -19,6 +19,9 @@
   box-sizing: border-box;
   font-family: satoshi;
 }
+body::-webkit-scrollbar{
+  display: none;
+}
 
 .no-scroller::-webkit-scrollbar {
   display: none;

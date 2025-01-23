@@ -3,12 +3,21 @@ import { Link } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import Logo from "./Logo";
 
-const Navbar = ({ links, isAdmin }) => {
+const Navbar = ({ links, isAdmin, scrolledLimit,solid }) => {
   return (
-    <>
-      <nav className="text-xs flex justify-between items-center px-5  lg:px-10 py-2 border-b border-gray-100">
+    <div className={
+      !solid?" w-full duration-300 bg-white":scrolledLimit?"fixed w-full duration-300 bg-white":"fixed z-[111111] text-white w-full duration-300"
+    }>
+      <nav
+        className={
+          isAdmin
+            ? " flex  justify-between items-center px-5  lg:px-10 py-2 border-b border-gray-100"
+            : " flex top-0 w-full justify-between items-center px-5  lg:px-10 py- duration-300 "
+        }
+      >
+        
         <div className="left w-[45%] hidden md:flex">
-          <ul className="flex text-xs items-center gap-8 tracking-wider">
+          <ul className="flex text-[11px] uppercase items-center gap-8 tracking-wider">
             {links.map((elem) => (
               <li key={elem.name}>
                 {" "}
@@ -17,9 +26,9 @@ const Navbar = ({ links, isAdmin }) => {
             ))}
           </ul>
         </div>
-        <Link to={(isAdmin)?"/admin":"/"}>
+        <Link to={isAdmin ? "/admin" : "/"}>
           <div className="center text-xl  w-[10%] font-[panchang] font-bold">
-            <Logo />
+            <Logo invert={!solid?false:scrolledLimit?false:true} />
           </div>
         </Link>
         {isAdmin ? (
@@ -32,17 +41,19 @@ const Navbar = ({ links, isAdmin }) => {
             <Link>
               <i className="ri-shopping-bag-4-fill text-xl"></i>
             </Link>
-            <Link className="text-xs" to={"/login"}>Login</Link>
+            <Link className="text-xs uppercase" to={"/login"}>
+              Login
+            </Link>
           </div>
         )}
       </nav>
-      <div className="no-scroller py-2 w-full flex md:hidden border-b border-gray-100 overflow-x-scroll">
-        <ul className="flex items-center gap-1 font-medium px-5   ">
+      <div className={isAdmin?"no-scroller py-2 w-full flex md:hidden border-b border-gray-100 overflow-x-scroll":"no-scroller py-2 w-full flex md:hidden overflow-x-scroll"}>
+        <ul className="flex items-center uppercase  gap-1 font-medium px-5   ">
           {links.map((elem) => (
             <li key={elem.name}>
               {" "}
               <Link
-                className=" px-4 py-2 text-gray-600 text-xs rounded-full"
+                className=" px-4 py-2  text-xs rounded-full"
                 to={elem.link}
               >
                 {elem.name}
@@ -51,7 +62,7 @@ const Navbar = ({ links, isAdmin }) => {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 };
 
