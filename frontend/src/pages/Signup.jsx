@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import Logo from "../components/Logo";
 
 const Signup = () => {
   let navigate = useNavigate();
@@ -75,7 +76,7 @@ const Signup = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-[#2B2738] text-white">
+      <div className="flex flex-col md:flex-row px-14 items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-[#2B2738] text-white">
         <div
           ref={blink}
           className="h-screen w-screen capitalize backdrop-blur-xl blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
@@ -85,12 +86,12 @@ const Signup = () => {
         <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden   left  rounded-3xl p-8">
           <img
             className="h-full w-full absolute top-0 left-0 brightness-[40%] object-cover"
-            src="https://veirdo.in/cdn/shop/files/Artboard8.png?v=1724158576"
+            src="https://turnedninja.com/cdn/shop/files/5_8e47c863-fe27-4c86-88e8-c03b2e589206_1024x1024.jpg?v=1685689430"
             alt=""
           />
           <div className=" z-10 relative h-full w-full flex flex-col  justify-between ">
             <div className="top flex  justify-between   items-center">
-              <h1 className="font-bold text-xl font-[panchang] ">HAWA.</h1>
+              <Logo invert={true}/>
               <Link
                 to="/"
                 className="p-2 bg-white/20 rounded-full px-4 md:px-6 text-sm flex items-center gap-1"

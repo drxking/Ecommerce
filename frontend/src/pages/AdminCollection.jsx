@@ -17,14 +17,13 @@ const AdminCollection = () => {
   function handleClose() {
     setOpen(false);
   }
-  function handleUpload() {
-    setrenderer((e) => !e);
-    console.log(renderer);
+  function handleUpload(e) {
+    setData((i) => [...i, e]);
   }
 
   async function fetchCollection() {
     let response = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/collections/admincollection`,
+      `${import.meta.env.VITE_BASE_URL}/collections/pure`,
       {
         withCredentials: true,
       }
@@ -47,9 +46,10 @@ const AdminCollection = () => {
         handleClose={handleClose}
       />
       <AdminNav />
-      <div className="hero flex items-center justify-between md:px-10 px-4 py-4 ">
-        <h2 className="font-semibold flex md:flex-row flex-col md:gap-3 md:text-2xl font-[panchang]  uppercase pl-3">
-          <p className="font-[panchang] leading-[1]">Your</p> <p className="font-[panchang] leading-[1]">Collections</p>
+      <div className="hero flex items-center justify-between md:px-20 px-4 py-4 ">
+        <h2 className="font-[900] flex md:flex-row flex-col md:gap-3 md:text-2xl  uppercase">
+          <p className="font-[panchang] leading-[1]">Your</p>{" "}
+          <p className="font-[panchang] leading-[1]">Collections</p>
         </h2>
         <button
           onClick={handleOpen}
@@ -64,9 +64,7 @@ const AdminCollection = () => {
       </div>
       <div
         className={
-          data.length > 3
-            ? "w-full md:px-10 px-4 py-4 flex flex-wrap justify-center gap-3"
-            : " w-full md:px-10 px-4 py-4 flex flex-wrap md:justify-start justify-center gap-3"
+          "w-full  py-4 flex-1  justify-start px-5 md:px-20 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  p-4"
         }
       >
         {isLoading ? (
@@ -86,49 +84,19 @@ const AdminCollection = () => {
         ) : (
           data.map((e) => (
             <Link
-            to={`/admin/collections/${e._id}`}
               key={e.name}
-              className="md:w-72 p-4 w-full  bg-gray-200 rounded-3xl "
+              className="relative  inline-block"
+              to={`/admin/collections/${e._id}`}
             >
-              <h2 className="text-xl font-semibold font-[panchang]">
+              <img
+                loading="lazy"
+                src={e.thumbnailImageLink}
+                className="w-full  h-full object-cover"
+                alt=""
+              />
+              <p className="absolute shadow-2xl leading-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-[panchang] text-2xl px-2 w-full text-center text-white">
                 {e.name}
-              </h2>
-              <ul className="flex mt-2 flex-row gap-1 text-sm  font-medium leading-none">
-                <div className="pt-1 w-[25%] font-medium text-gray-500">
-                  Type :
-                </div>
-                <div className="flex flex-wrap font-thin tracking-wide gap-1 w-[75%]">
-                  {e.type.map((i) => (
-                    <li
-                      key={i.name}
-                      className="capitalize px-3 p-1 bg-gray-700 text-xs text-white rounded-full"
-                    >
-                      {i.name}
-                    </li>
-                  ))}
-                </div>
-              </ul>
-              <ul className="flex gap-1 pt-1 text-sm  leading-none">
-                <div className="pt-1 w-[25%] font-medium text-gray-500">
-                  Products:
-                </div>
-                <div className="flex flex-wrap gap-1 w-[75%]">
-                  {e.products.map((i) => (
-                    <li
-                      key={i.name}
-                      className=" max-w-full p-1 flex font-thin tracking-wide gap-1 items-center bg-gray-700 text-xs text-white rounded-full"
-                    >
-                      <img
-                        src={i.imageLink}
-                        className="h-5 w-5 min-w-5 rounded-full object-cover"
-                      />
-                      <p className="capitalize truncate">
-                      {i.name}
-                      </p>
-                    </li>
-                  ))}
-                </div>
-              </ul>
+              </p>
             </Link>
           ))
         )}

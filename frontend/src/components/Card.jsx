@@ -7,11 +7,11 @@ const Card = ({ name, price, imageLink, _id, description }) => {
       <Link to={`/products/${_id}`}>
         <img
           src={imageLink}
-          className="sm:h-72 h-[120vw] sm:w-56 w-[100vw] rounded-3xl object-cover"
+          className="sm:h-72 h-[120vw] sm:w-56 w-[100vw] object-cover"
           alt={name}
         />
-        <h2 className="sm:text-xl text-2xl font-bold mt-2 sm:w-56 sm:truncate leading-none">{name}</h2>
-        <p className=" sm:text-sm text-base text-gray-600 font-medium">
+        <h2 className="text-lg font-medium mt-2 sm:w-56 sm:truncate sm:leading-normal leading-none">{name}</h2>
+        <p className=" sm:text-xs text-base text-gray-500 font-medium tracking-wide">
           {description}
         </p>
         <p className="sm:font-medium font-semibold text-xl sm:text-lg">

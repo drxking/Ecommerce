@@ -10,11 +10,14 @@ module.exports.addCollection = async (req, res) => {
             "status": "failed"
         })
     }
+    console.log(req.files.thumbnail)
     try {
         let collection = await collectionModel.create({
             name,
             type,
-            products
+            products,
+            thumbnailImageLink: req.files.thumbnail[0].path,
+            bannerImageLink: req.files.banner[0].path
         })
         res.json({
             "message": "Added Collection",
@@ -52,17 +55,14 @@ module.exports.getAllCollection = async (req, res) => {
     }
 }
 
-module.exports.getCollectionWithPopulatedTypeAndProduct = async (req, res) => {
+module.exports.getPureCollection = async (req, res) => {
     try {
-        let collections = await collectionModel.find().populate({
-            path: 'type',
-            options: { limit: 3 }
-        }).populate({
-            path: 'products',
-            options: { limit: 2 }
-        })
+        console.log(req)
+        let collections = await collectionModel.aggregate([
+            { $project: { name: 1, thumbnailImageLink: 1, bannerImageLink: 1 } }
+        ])
         res.json({
-            "message": "Fetched Collection with Populated Type and Product",
+            "message": "Fetched need field of Collection",
             "status": "success",
             "data": collections
         })

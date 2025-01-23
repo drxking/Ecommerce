@@ -4,6 +4,7 @@ import axios from "axios";
 import "remixicon/fonts/remixicon.css";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import Logo from "../components/Logo";
 
 const AdminLogin = () => {
   let navigate = useNavigate();
@@ -29,7 +30,7 @@ const AdminLogin = () => {
   }
   useEffect(() => {
     getToken();
-  },[]);
+  }, []);
 
   useGSAP(() => {
     if (isInitialRender.current) {
@@ -98,7 +99,8 @@ const AdminLogin = () => {
           />
           <div className=" z-10 relative h-full w-full flex flex-col  justify-between ">
             <div className="top flex  justify-between   items-center">
-              <h1 className="font-bold text-xl font-[panchang] ">HAWA.</h1>
+              <Logo width={"16"} invert={true}/>
+
               <Link
                 to="/"
                 className="p-2 bg-white/20 rounded-full px-4 md:px-6 text-sm flex items-center gap-1"

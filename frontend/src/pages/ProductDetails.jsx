@@ -22,7 +22,6 @@ let links = [
   },
 ];
 
-
 const Home = () => {
   let [product, setProduct] = useState([]);
   let mainImage = useRef(null);
@@ -46,18 +45,19 @@ const Home = () => {
   }
   return (
     <>
-      <Navbar links={links}/>
+      <Navbar links={links} />
 
       <div className="lg:px-32 md:px-20 sm:px-10 px-5  py-5">
         <div className="top">
           <p className="text-sm font-medium text-gray-500 py-3">
-            Clothes and shoes • Shoes • Nike
+            Winter • Hoodie • Premium
           </p>
         </div>
         <div className="bottom flex flex-col md:flex-row  gap-4 md:gap-0">
           <div className="left flex flex-col w-full  md:w-1/2">
-            <div className="img-wrapper image-loader relative w-full h-[115vw] md:w-[36vw] md:h-[38vw] rounded-3xl overflow-hidden">
+            <div className="img-wrapper image-loader relative w-full h-[115vw] md:w-[36vw] md:h-[38vw]  overflow-hidden">
               <img
+              loading="lazy"
                 ref={mainImage}
                 src={product?.imageLink}
                 className="object-cover w-full h-full"
@@ -78,7 +78,9 @@ const Home = () => {
               </div>
             </div>
             <div className="py-5">
-              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <h1 className="text-4xl font-bold font-[panchang]">
+                {product.name}
+              </h1>
               <div className="flex py-1 items-center gap-2">
                 <div className=" flex text-[#e0be4c] items-center">
                   <i className="ri-star-fill"></i>
@@ -93,7 +95,7 @@ const Home = () => {
               </div>
             </div>
             <div>
-              <p className="text-4xl font-semibold">${product.price}</p>
+              <p className="text-3xl font-semibold ">${product.price}</p>
             </div>
             <div className="py-5 ">
               <p className="p-1 text-sm font-semibold text-gray-600">Size</p>
@@ -112,6 +114,7 @@ const Home = () => {
             <div className="flex gap-3 w-full overflow-x-scroll md:overflow-x-auto no-scroller">
               {product?.otherImageLink?.map((e, index) => (
                 <img
+                  loading="lazy"
                   onClick={handleClick}
                   className="w-28 h-32 smooth cursor-pointer object-cover rounded-xl border border-gray-200"
                   key={index}

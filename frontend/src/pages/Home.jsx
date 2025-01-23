@@ -32,7 +32,7 @@ const Home = () => {
     <>
       <Navbar links={links} />
       <div className="flex flex-col items-center sm:p-10 p-2">
-        <h2 className="uppercase text-[14vw] mt-10 sm:mt-0 font-bold leading-none sm:text-5xl sm:font-medium text-center">
+        <h2 className="uppercase text-[14vw] font-[panchang] font-[900] mt-10 sm:mt-0  leading-none sm:text-6xl sm:font-medium text-center">
           Latest Clothing Collection
         </h2>
         <p className="text-sm text-gray-400 text-center mt-3">

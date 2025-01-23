@@ -8,11 +8,17 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
 
   const [fetchedProducts, setfetchedProducts] = useState([]);
   const [selectedProducts, setselectedProducts] = useState([]);
+  const [thumbnails, setthumbnails] = useState();
+  const [banners, setbanners] = useState();
 
   let name = useRef();
   let type = useRef();
   let products = useRef();
   let dropdown_type = useRef();
+  let thumbnail = useRef();
+  let preview = useRef();
+  let banner = useRef();
+  let preview2 = useRef();
   let dropdown_product = useRef();
 
   const popup = useRef(null);
@@ -44,20 +50,34 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     event.preventDefault();
     setSubmitted(true);
 
+    const formData = new FormData();
+    for (let file of thumbnails) {
+      formData.append("thumbnail", file);
+    }
+    for (let file of banners) {
+      formData.append("banner", file);
+    }
+    formData.append("name", name.current.value);
+
     let shouldSendType = selectedTypes.map((e) => {
       return e._id;
     });
     let shouldSendProduct = selectedProducts.map((e) => {
       return e._id;
     });
+
+    shouldSendType.forEach((i)=>{
+      formData.append("type[]", i);
+    })
+    shouldSendProduct.forEach((i)=>{
+      formData.append("products[]", i);
+    })
+    
+    
     try {
       let response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/collections`,
-        {
-          name: name.current.value,
-          type: shouldSendType,
-          products: shouldSendProduct,
-        },
+        formData,
         {
           withCredentials: true,
         }
@@ -106,7 +126,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   }
 
   function handleTypeClick(i) {
-    setselectedTypes((e) => [...e, i]);
+    setselectedTypes((e) => [i, ...e]);
     dropdown_type.current.style.display = "none";
   }
 
@@ -145,7 +165,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   }
 
   function handleProductClick(i) {
-    setselectedProducts((e) => [...e, i]);
+    setselectedProducts((e) => [i, ...e]);
     dropdown_product.current.style.display = "none";
   }
 
@@ -161,10 +181,48 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       setselectedProducts([]);
     }
   }
+
+  function handleThumbnailChange(event) {
+    const file = event.target.files[0];
+    setthumbnails(event.target.files);
+    console.log(file);
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        preview.current.src = e.target.result;
+        preview.current.style.opacity = 1;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+  function handleThumbnailClick() {
+    thumbnail.current.click();
+  }
+
+  function handleBannerChange() {
+    const file = event.target.files[0];
+    setbanners(event.target.files);
+    if (file) {
+      const reader = new FileReader();
+
+      // When the file is loaded, update the img src and make it visible
+      reader.onload = function (e) {
+        preview2.current.src = e.target.result;
+        preview2.current.style.opacity = 1;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+  function handleBannerClick() {
+    banner.current.click();
+  }
   return (
     <div
       ref={popup}
-      className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
+      className="fixed duration-200  opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
     >
       <div
         onClick={handleClose}
@@ -272,7 +330,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </label>
             <div className="relative w-full">
               {selectedProducts.length != 0 ? (
-                <div className="flex flex-wrap gap-1 max-h-32 overflow-scroll no-scroller items-center py-1">
+                <div className="flex flex-wrap gap-1 my-1 max-h-16 overflow-scroll no-scroller items-center py-1">
                   {selectedProducts.map((tp, index) => (
                     <span
                       key={index}
@@ -339,7 +397,64 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
               </div>
             </div>
           </div>
+          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+            <label
+              htmlFor="image"
+              className="text-sm w-[40%] font-semibold text-gray-800"
+            >
+              Thumbail
+            </label>
 
+            <div className="w-full relative px-5 gap-2 flex">
+              <input
+                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
+                placeholder="Los Angeles"
+                id="image"
+                type="file"
+                ref={thumbnail}
+                required={true}
+                onChange={handleThumbnailChange}
+              />
+              <div
+                onClick={handleThumbnailClick}
+                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+              >
+                <i className="ri-image-add-line text-2xl"></i>
+              </div>
+              <img
+                ref={preview}
+                className="w-24 outline-none border-none object-cover z-10 opacity-0 "
+              />
+            </div>
+          </div>
+
+          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+            <label
+              htmlFor="image"
+              className="text-sm w-[40%] font-semibold text-gray-800"
+            >
+              Banner
+            </label>
+
+            <div className="w-full flex gap-2 px-5">
+              <input
+                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
+                placeholder="Los Angeles"
+                id="image"
+                type="file"
+                ref={banner}
+                required={true}
+                onChange={handleBannerChange}
+              />
+              <div
+                onClick={handleBannerClick}
+                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+              >
+                <i className="ri-image-add-line text-2xl"></i>
+              </div>
+              <img ref={preview2} className="w-36 shadow-2xl z-10 opacity-0" />
+            </div>
+          </div>
           <div className="flex justify-end">
             <button
               id="submit"
