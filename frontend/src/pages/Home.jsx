@@ -2,25 +2,8 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
-let links = [
-  {
-    name: "Men",
-    link: "/men",
-  },
-  {
-    name: "Women",
-    link: "/women",
-  },
-  {
-    name: "Kids",
-    link: "/kids",
-  },
-  {
-    name: "Featured",
-    link: "/sale",
-  },
-];
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const Home = () => {
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
@@ -37,7 +20,7 @@ const Home = () => {
     if (response) {
       setCollection(response.data.data);
       setBanners(
-        response.data.data.map((e) => ({
+        response.data.data?.map((e) => ({
           bannerImageLink: e.bannerImageLink,
           name: e.name,
           id: e._id,
@@ -49,10 +32,6 @@ const Home = () => {
     collectionFetcher();
   }, []);
 
-  useEffect(() => {
-    console.log(collection);
-    console.log(banners);
-  }, [collection]);
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 100) {
@@ -73,15 +52,29 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar links={links} scrolledLimit={IsScrolled100px} solid={true} />
+      <Navbar scrolledLimit={IsScrolled100px} solid={true} />
       <div className="hero relative w-full flex flex-col items-center justify-center text-white uppercase  h-screen">
-        {banners?.map((e) => (
-          <div className="w-full loader top-0 left-0 h-full absolute">
+        {banners?.map((e, index) => (
+          <div
+            key={index}
+            className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
+          >
             <img
               src={e?.bannerImageLink}
-              className="w-full h-full object-cover"
-              alt=""
+              className="w-full h-full object-cover relative top-0  left-0"
+              alt={e?.bannerImageLink}
             />
+            <div className="absolute flex flex-col items-center">
+              <h2 className=" font-[panchang] text-2xl  md:text-4xl">
+                {e.name}
+              </h2>
+              <Link
+                to={`/collections/${e.id}`}
+                className="capitalize text-center border-b leading-5 text-sm"
+              >
+                Shop
+              </Link>
+            </div>
           </div>
         ))}
       </div>
