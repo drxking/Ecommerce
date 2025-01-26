@@ -1,36 +1,23 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import axios from "axios";
 import { Link } from "react-router-dom";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useCollection } from "../components/CollectionProvider";
+import Footer from "../components/Footer";
 
 const Home = () => {
+  let collection = useCollection();
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
-  const [collection, setCollection] = useState();
   const [banners, setBanners] = useState([]);
 
-  async function collectionFetcher() {
-    let response = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/collections/three-collection`,
-      {
-        withCredentials: true,
-      }
-    );
-    if (response) {
-      setCollection(response.data.data);
-      setBanners(
-        response.data.data?.map((e) => ({
-          bannerImageLink: e.bannerImageLink,
-          name: e.name,
-          id: e._id,
-        }))
-      );
-    }
-  }
   useEffect(() => {
-    collectionFetcher();
-  }, []);
+    setBanners(
+      collection?.data?.map((e) => ({
+        bannerImageLink: e.bannerImageLink,
+        name: e.name,
+        id: e._id,
+      }))
+    );
+  }, [collection]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,33 +41,30 @@ const Home = () => {
     <div>
       <Navbar scrolledLimit={IsScrolled100px} solid={true} />
       <div className="hero relative w-full flex flex-col items-center justify-center text-white uppercase  h-screen">
-        {banners?.map((e, index) => (
-          <div
-            key={index}
-            className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
-          >
-            <img
-              src={e?.bannerImageLink}
-              className="w-full h-full object-cover relative top-0  left-0"
-              alt={e?.bannerImageLink}
-            />
-            <div className="absolute flex flex-col items-center">
-              <h2 className=" font-[panchang] text-2xl  md:text-4xl">
-                {e.name}
-              </h2>
-              <Link
-                to={`/collections/${e.id}`}
-                className="capitalize text-center border-b leading-5 text-sm"
-              >
-                Shop
-              </Link>
-            </div>
+        <div
+          className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
+        >
+          <img
+            src={banners ? banners[0]?.bannerImageLink : ""}
+            className="w-full h-full object-cover relative top-0  left-0"
+            alt={banners ? banners[0]?.bannerImageLink : ""}
+          />
+          <div className="absolute flex flex-col items-center">
+            <h2 className=" font-[panchang] text-3xl  md:text-5xl">
+              {banners ? banners[0]?.name : ""}
+            </h2>
+            <Link
+              to={`/collections/${banners ? banners[0]?.id : ""}`}
+              className="capitalize text-center border-b leading-5 text-sm"
+            >
+              Shop
+            </Link>
           </div>
-        ))}
+        </div>
       </div>
 
       <div className="w-full  py-3 flex-1  justify-start md:px-5 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3">
-        {collection?.map((e, index) => (
+        {collection?.data?.map((e, index) => (
           <Link
             to={`/collections/${e._id}`}
             key={index}
@@ -91,7 +75,7 @@ const Home = () => {
             }
           >
             <img
-              className="h-full  sm:w-full brightness-[80%]"
+              className="h-full  sm:w-full brightness-[80%] object-cover"
               src={e.thumbnailImageLink}
               alt=""
             />
@@ -103,6 +87,7 @@ const Home = () => {
           </Link>
         ))}
       </div>
+      <Footer />
     </div>
   );
 };

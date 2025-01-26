@@ -40,9 +40,9 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
         <div className="left w-[45%] hidden md:flex">
           <ul className="flex text-[11px] uppercase items-center gap-8 tracking-wider">
             {link?.map((elem) => (
-              <li key={elem.name}>
+              <li className="hoverer" key={elem.name}>
                 {" "}
-                <Link to={elem.link}>{elem.name}</Link>{" "}
+                <Link  to={elem.link}>{elem.name}</Link>{" "}
               </li>
             ))}
           </ul>
@@ -78,8 +78,7 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
         <ul className="flex items-center uppercase  gap-1 font-medium px-5   ">
           {link?.map((elem) => (
             <li key={elem.name}>
-              {" "}
-              <Link className=" px-4 py-2  text-xs rounded-full" to={elem.link}>
+              <Link className=" px-4 py-2 whitespace-nowrap  text-xs rounded-full" to={elem.link}>
                 {elem.name}
               </Link>{" "}
             </li>

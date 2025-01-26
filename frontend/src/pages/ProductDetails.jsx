@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import Footer from "../components/Footer";
 
 let links = [
   {
@@ -57,7 +58,7 @@ const Home = () => {
           <div className="left flex flex-col w-full  md:w-1/2">
             <div className="img-wrapper image-loader relative w-full h-[115vw] md:w-[36vw] md:h-[38vw]  overflow-hidden">
               <img
-              loading="lazy"
+                loading="lazy"
                 ref={mainImage}
                 src={product?.imageLink}
                 className="object-cover w-full h-full"
@@ -224,6 +225,7 @@ const Home = () => {
           </div>
         </div> */}
       </div>
+      <Footer />
     </>
   );
 };

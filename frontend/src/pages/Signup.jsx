@@ -76,14 +76,14 @@ const Signup = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row px-6 sm:px-14  items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-[#2B2738] text-white">
+      <div className="flex flex-col md:flex-row px-6 sm:px-14  items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-white text-black">
         <div
           ref={blink}
-          className="h-screen w-screen capitalize backdrop-blur-xl blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
+          className="h-screen w-screen capitalize backdrop-blur-xl backdrop-brightness-50 blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
         >
           {responsed?.data?.message}
         </div>
-        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden   left  rounded-3xl p-8">
+        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden text-white  left  rounded-3xl p-8">
           <img
             className="h-full w-full absolute top-0 left-0 brightness-[40%] object-cover"
             src="https://turnedninja.com/cdn/shop/files/5_8e47c863-fe27-4c86-88e8-c03b2e589206_1024x1024.jpg?v=1685689430"
@@ -126,14 +126,14 @@ const Signup = () => {
                 <input
                   required={true}
                   ref={first}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-white border text-sm rounded-lg"
                   type="text"
                   id="firstName"
                   placeholder="Jon"
                 />
                 <input
                   ref={last}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-white border text-sm rounded-lg"
                   type="text"
                   id="lastName"
                   placeholder="Snow"
@@ -143,7 +143,7 @@ const Signup = () => {
                 <input
                   required={true}
                   ref={mail}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-white border text-sm rounded-lg"
                   type="email"
                   placeholder="snowjon@gmail.com"
                 />
@@ -152,14 +152,14 @@ const Signup = () => {
                 <input
                   required={true}
                   ref={pass}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-white border text-sm rounded-lg"
                   type="password"
                   placeholder="Enter your passoword"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full p-3 bg-[#6E54B5] rounded-lg relative flex items-center justify-center"
+                className="w-full p-3 bg-black rounded-lg relative flex items-center justify-center"
               >
                 {submitted ? (
                   <>
@@ -169,7 +169,7 @@ const Signup = () => {
                 ) : (
                   <>
                     <div className="loader opacity-0 h-10 w-10 animate-spin absolute  rounded-full border-4 border-t-black border-b-black border-r-transparent border-l-transparent"></div>
-                    <p>Create account</p>
+                    <p className="text-white">Create account</p>
                   </>
                 )}
               </button>

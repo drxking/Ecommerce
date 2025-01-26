@@ -8,8 +8,8 @@ module.exports.registerUser = async (req, res) => {
         let { email, password, firstName, lastName } = req.body;
 
         if (!email || !password || !firstName || !lastName) {
-            return res.status(400).json({
-                message: "name, email and password  is required",
+            return res.json({
+                message: "Required Field is Missing!",
                 status: "failed"
             })
         }

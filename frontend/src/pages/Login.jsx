@@ -25,7 +25,6 @@ const Login = () => {
     } else {
       let tl = gsap.timeline();
       tl.to(blink.current, {
-        // backgroundColor: "rgba(255,0,0,0.7)",
         opacity: 1,
         duration: 0.3,
       });
@@ -34,7 +33,6 @@ const Login = () => {
         opacity: 1,
       });
       tl.to(".blink", {
-        // backgroundColor: "rgba(255,0,0,0)",
         duration: 0.3,
         opacity: 0,
       });
@@ -71,14 +69,14 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center px-6 sm:px-14 relative h-screen justify-center md:gap-6 gap-2 p-4 bg-[#2B2738] text-white">
+      <div className="flex flex-col md:flex-row items-center p-4 sm:px-14 relative h-screen justify-center md:gap-6 gap-2  bg-[#fff] text-black">
         <div
           ref={blink}
-          className="h-screen w-screen capitalize backdrop-blur-xl blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
+          className="h-screen w-screen capitalize backdrop-blur-xl backdrop-brightness-50 blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
         >
           {responsed?.data?.message}
         </div>
-        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden   left  rounded-3xl p-8">
+        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden text-white  left  rounded-3xl p-4">
           <img
             className="h-full w-full absolute top-0 left-0 brightness-[40%] object-cover"
             src="https://turnedninja.com/cdn/shop/files/5_8e47c863-fe27-4c86-88e8-c03b2e589206_1024x1024.jpg?v=1685689430"
@@ -89,7 +87,7 @@ const Login = () => {
               <Logo invert={true} />
               <Link
                 to="/"
-                className="p-2 bg-white/20 rounded-full px-4 md:px-6 text-sm flex items-center gap-1"
+                className="p-2 bg-white/20 rounded-full  px-4 md:px-6 text-sm flex items-center gap-1"
               >
                 <i className="ri-arrow-left-line text-xl"></i> Back to website
               </Link>
@@ -102,7 +100,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-        <div className="md:w-[45%] h-full right  md:p-14">
+        <div className="md:w-[45%] h-full right pt-6  md:p-14">
           <div>
             <h2 className="text-4xl font-semibold font-[panchang]">
               Welcome Back!
@@ -121,7 +119,7 @@ const Login = () => {
                 <input
                   required={true}
                   ref={mail}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#fff] border text-sm rounded-lg"
                   type="email"
                   placeholder="snowjon@gmail.com"
                 />
@@ -130,14 +128,14 @@ const Login = () => {
                 <input
                   required={true}
                   ref={pass}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#3B364C] rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#fff] border text-sm rounded-lg"
                   type="password"
                   placeholder="Enter your passoword"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full p-3 bg-[#6E54B5] rounded-lg relative flex items-center justify-center"
+                className="w-full p-3 bg-[#000] rounded-lg relative flex items-center justify-center"
               >
                 {submitted ? (
                   <>
@@ -146,8 +144,8 @@ const Login = () => {
                   </>
                 ) : (
                   <>
-                    <div className="loader opacity-0 h-10 w-10 animate-spin absolute  rounded-full border-4 border-t-black border-b-black border-r-transparent border-l-transparent"></div>
-                    <p>Login </p>
+                    <div className="loader opacity-0 h-10 w-10 text-white text-sm animate-spin absolute  rounded-full border-4 border-t-black border-b-black border-r-transparent border-l-transparent"></div>
+                    <p className="text-white">Login </p>
                   </>
                 )}
               </button>
