@@ -71,7 +71,7 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center px-14 relative h-screen justify-center md:gap-6 gap-2 p-4 bg-[#2B2738] text-white">
+      <div className="flex flex-col md:flex-row items-center px-6 sm:px-14 relative h-screen justify-center md:gap-6 gap-2 p-4 bg-[#2B2738] text-white">
         <div
           ref={blink}
           className="h-screen w-screen capitalize backdrop-blur-xl blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"

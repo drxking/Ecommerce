@@ -6,7 +6,7 @@ import Logo from "./Logo";
 const Navbar = ({ links, isAdmin, scrolledLimit,solid }) => {
   return (
     <div className={
-      !solid?" w-full duration-300 bg-white":scrolledLimit?"fixed w-full duration-300 bg-white":"fixed z-[111111] text-white w-full duration-300"
+      !solid?" w-full duration-300 bg-white":scrolledLimit?"fixed w-full duration-300 z-[11111] bg-white":"fixed z-[11111] text-white w-full duration-300"
     }>
       <nav
         className={

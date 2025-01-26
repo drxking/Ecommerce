@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import Card from "../components/Card";
 import axios from "axios";
-import { useProducts } from "../components/ProductsProvider";
 import { Link } from "react-router-dom";
 
 let links = [
@@ -27,6 +25,7 @@ let links = [
 const Home = () => {
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
   const [collection, setCollection] = useState();
+  const [banners, setBanners] = useState([]);
 
   async function collectionFetcher() {
     let response = await axios.get(
@@ -37,6 +36,13 @@ const Home = () => {
     );
     if (response) {
       setCollection(response.data.data);
+      setBanners(
+        response.data.data.map((e) => ({
+          bannerImageLink: e.bannerImageLink,
+          name: e.name,
+          id: e._id,
+        }))
+      );
     }
   }
   useEffect(() => {
@@ -45,6 +51,7 @@ const Home = () => {
 
   useEffect(() => {
     console.log(collection);
+    console.log(banners);
   }, [collection]);
   useEffect(() => {
     const handleScroll = () => {
@@ -63,20 +70,27 @@ const Home = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  const products = useProducts();
 
   return (
     <div>
       <Navbar links={links} scrolledLimit={IsScrolled100px} solid={true} />
-      <div className="hero w-full bg-[url(https://studio63.in/wp-content/uploads/2023/12/754A3993.webp)] flex flex-col items-center justify-center text-white uppercase   bg-cover bg-center h-screen">
-       <p className="font-[panchang] text-6xl">Asthetic</p>
-       <p className=" text-xs border-b border-white leading-none mt-2">shop</p>
+      <div className="hero relative w-full flex flex-col items-center justify-center text-white uppercase  h-screen">
+        {banners?.map((e) => (
+          <div className="w-full loader top-0 left-0 h-full absolute">
+            <img
+              src={e?.bannerImageLink}
+              className="w-full h-full object-cover"
+              alt=""
+            />
+          </div>
+        ))}
       </div>
 
-      <div className="w-full  py-4 flex-1  justify-start md:px-5 gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-4">
+      <div className="w-full  py-3 flex-1  justify-start md:px-5 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3">
         {collection?.map((e, index) => (
           <Link
             to={`/collections/${e._id}`}
+            key={index}
             className={
               index == 2
                 ? "h-full relative  object-cover sm:col-span-2 md:col-span-1"
@@ -89,7 +103,9 @@ const Home = () => {
               alt=""
             />
             <div className="absolute h-full w-full  top-0 flex items-center justify-center">
-              <h2 className="text-white font-[panchang] text-3xl">{e.name}</h2>
+              <h2 className="text-white font-[panchang] text-center text-3xl md:text-[2.5vw]">
+                {e.name}
+              </h2>
             </div>
           </Link>
         ))}
