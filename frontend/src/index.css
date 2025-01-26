@@ -47,6 +47,7 @@ body::-webkit-scrollbar{
 
 .hoverer{
   position: relative;
+  width: fit-content;
 }
 .hoverer:hover::after{
   width: 100%;

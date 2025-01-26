@@ -18,5 +18,5 @@ router.get("/", getAllCollection)
 router.get("/pure", getPureCollection)
 router.get("/three-collection", getThreeCollection)
 
-router.get("/:id", authenticateAdmin, getOneCollection)
+router.get("/:id", getOneCollection)
 module.exports = router;

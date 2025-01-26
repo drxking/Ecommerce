@@ -7,6 +7,7 @@ import AdminRouter from "./routes/AdminRouter";
 import AdminCollectionDetails from "./pages/AdminCollectionDetails";
 import { ProductsProvider } from "./components/ProductsProvider";
 import { CollectionProvider } from "./components/CollectionProvider";
+import Collection from "./pages/Collection";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/products/:id" element={<ProductDetails />} />
+            <Route path="/collections/:id" element={<Collection />} />
             <Route path="/admin/*" element={<AdminRouter />} />
             <Route
               path="/admin/collections/:id"

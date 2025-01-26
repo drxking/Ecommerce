@@ -10,15 +10,14 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
 
   useEffect(() => {
     isAdmin
-      ? ""
+      ? setlink(links)
       : setlink(
           collection?.data?.map((e) => ({
             name: e.name,
-            link: `/collection/${e._id}`,
+            link: `/collections/${e._id}`,
           }))
         );
   }, [collection]);
-
 
   return (
     <div
@@ -42,7 +41,7 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
             {link?.map((elem) => (
               <li className="hoverer" key={elem.name}>
                 {" "}
-                <Link  to={elem.link}>{elem.name}</Link>{" "}
+                <Link to={elem.link}>{elem.name}</Link>{" "}
               </li>
             ))}
           </ul>
@@ -78,7 +77,10 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
         <ul className="flex items-center uppercase  gap-1 font-medium px-5   ">
           {link?.map((elem) => (
             <li key={elem.name}>
-              <Link className=" px-4 py-2 whitespace-nowrap  text-xs rounded-full" to={elem.link}>
+              <Link
+                className=" px-4 py-2 whitespace-nowrap  text-xs rounded-full"
+                to={elem.link}
+              >
                 {elem.name}
               </Link>{" "}
             </li>
