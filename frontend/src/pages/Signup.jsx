@@ -76,14 +76,14 @@ const Signup = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row px-6 sm:px-14  items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-white text-black">
+      <div className="flex flex-col md:flex-row  sm:px-14  items-center h-screen justify-center gap-2 md:gap-6 p-4 bg-white text-black">
         <div
           ref={blink}
           className="h-screen w-screen capitalize backdrop-blur-xl backdrop-brightness-50 blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
         >
           {responsed?.data?.message}
         </div>
-        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden text-white  left  rounded-3xl p-8">
+        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden text-white  left  rounded-3xl p-4">
           <img
             className="h-full w-full absolute top-0 left-0 brightness-[40%] object-cover"
             src="https://turnedninja.com/cdn/shop/files/5_8e47c863-fe27-4c86-88e8-c03b2e589206_1024x1024.jpg?v=1685689430"
