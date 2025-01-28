@@ -39,7 +39,14 @@ const Navbar = ({ links, isAdmin, scrolledLimit, solid }) => {
         <div className="left w-[45%] hidden md:flex">
           <ul className="flex text-[11px] uppercase items-center gap-8 tracking-wider">
             {link?.map((elem) => (
-              <li className="hoverer" key={elem.name}>
+              <li
+                className={
+                  scrolledLimit
+                    ? `hoverer after:bg-black`
+                    : `hoverer after:bg-white`
+                }
+                key={elem.name}
+              >
                 {" "}
                 <Link to={elem.link}>{elem.name}</Link>{" "}
               </li>

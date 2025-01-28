@@ -5,6 +5,7 @@ import AdminLogin from "../pages/AdminLogin";
 import AdminAuthenticator from "../components/AdminAuthenticator";
 import Vendors from "../pages/Vendors";
 import AdminCollection from "../pages/AdminCollection";
+import AdminCollectionDetails from "../pages/AdminCollectionDetails";
 
 const AdminRouter = () => {
   return (
@@ -31,6 +32,14 @@ const AdminRouter = () => {
         element={
           <AdminAuthenticator>
             <AdminCollection />
+          </AdminAuthenticator>
+        }
+      />
+      <Route
+        path="/collections/:id"
+        element={
+          <AdminAuthenticator>
+            <AdminCollectionDetails />
           </AdminAuthenticator>
         }
       />

@@ -4,7 +4,6 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import AdminRouter from "./routes/AdminRouter";
-import AdminCollectionDetails from "./pages/AdminCollectionDetails";
 import { ProductsProvider } from "./components/ProductsProvider";
 import { CollectionProvider } from "./components/CollectionProvider";
 import Collection from "./pages/Collection";
@@ -21,10 +20,6 @@ function App() {
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/collections/:id" element={<Collection />} />
             <Route path="/admin/*" element={<AdminRouter />} />
-            <Route
-              path="/admin/collections/:id"
-              element={<AdminCollectionDetails />}
-            />
           </Routes>
         </Router>
       </CollectionProvider>
