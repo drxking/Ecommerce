@@ -9,6 +9,7 @@ const Card = ({ name, price, imageLink, _id, description }) => {
           src={imageLink}
           className="sm:h-72 h-[120vw] sm:w-56 w-[100vw] object-cover"
           alt={name}
+          loading="lazy"
         />
         <h2 className="text-lg font-medium mt-2 sm:w-56 sm:truncate sm:leading-normal leading-none">{name}</h2>
         <p className=" sm:text-xs text-base text-gray-500 font-medium tracking-wide">
