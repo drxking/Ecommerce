@@ -28,7 +28,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       popup.current.style.opacity = 1;
       popup.current.style.pointerEvents = "unset";
 
-      console.log(selectedProducts, selectedTypes);
     } else {
       popup.current.style.opacity = 0;
       popup.current.style.pointerEvents = "none";
@@ -157,7 +156,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       );
       if (response.data.status == "success") {
         setfetchedProducts(response.data.data);
-        console.log(response.data.data);
       } else {
         setfetchedProducts([]);
       }
@@ -185,7 +183,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   function handleThumbnailChange(event) {
     const file = event.target.files[0];
     setthumbnails(event.target.files);
-    console.log(file);
     if (file) {
       const reader = new FileReader();
 

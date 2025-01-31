@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import { useCollection } from "../components/CollectionProvider";
 import Footer from "../components/Footer";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
 
 const Home = () => {
   let collection = useCollection();
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
   const [banners, setBanners] = useState([]);
+  const [iSloaded, setISloaded] = useState(false);
+
+  let loader = useRef(null)
 
   useEffect(() => {
     setBanners(
@@ -17,7 +23,17 @@ const Home = () => {
         id: e._id,
       }))
     );
+    collection?.data?.length > 0 ? setISloaded(true) : "";
   }, [collection]);
+
+  useGSAP(() => {
+    if (iSloaded) {
+      gsap.to(loader.current,{
+        opacity:0,
+        duration:0.7
+      })
+    }
+  }, [iSloaded]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +55,13 @@ const Home = () => {
 
   return (
     <div>
+      <div ref={loader} className="loader pointer-events-none bg-white fixed z-[11111111] flex items-center justify-center h-screen w-screen">
+        <img
+          src="tsabinz.png"
+          alt="Logo"
+          className="h-24 w-3h-24  blinker"
+        />
+      </div>
       <Navbar scrolledLimit={IsScrolled100px} solid={true} />
       <div className="hero relative w-full flex flex-col items-center justify-center text-white uppercase  h-screen">
         <div
@@ -75,7 +98,7 @@ const Home = () => {
             }
           >
             <img
-              className="h-full  sm:w-full brightness-[80%] object-cover"
+              className="h-full  sm:w-full w-full brightness-[80%] object-cover"
               src={e.thumbnailImageLink}
               alt=""
             />

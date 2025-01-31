@@ -19,7 +19,7 @@
   box-sizing: border-box;
   font-family: satoshi;
 }
-body::-webkit-scrollbar{
+body::-webkit-scrollbar {
   display: none;
 }
 
@@ -39,21 +39,34 @@ body::-webkit-scrollbar{
   }
 }
 
+@keyframes blinks {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.blinker {
+  animation: blinks 0.7s infinite cubic-bezier(0.4, 0, 0.7, 0.7);
+}
 .image-loader {
   background: linear-gradient(90deg, #999, #666, #999);
   background-size: 400% 100%;
   animation: gradientLoading 3s linear infinite;
 }
 
-.hoverer{
+.hoverer {
   position: relative;
   width: fit-content;
 }
-.hoverer:hover::after{
+.hoverer:hover::after {
   width: 100%;
 }
 
-.hoverer::after{
+.hoverer::after {
   content: "";
   position: absolute;
   height: 1px;

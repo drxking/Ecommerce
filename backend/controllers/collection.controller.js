@@ -38,6 +38,7 @@ module.exports.addCollection = async (req, res) => {
 
 module.exports.getThreeCollection = async (req, res) => {
     try {
+        console.log(req)
 
         let collections = await collectionModel.find().limit(3)
         res.json({
