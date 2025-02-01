@@ -127,3 +127,32 @@ module.exports.getOneCollection = async (req, res) => {
         })
     }
 }
+
+module.exports.addProductToCollection = async (req, res) => {
+    let collection = req.params.collection;
+    let product = req.params.product
+    try {
+        let newCollection = await collectionModel.findByIdAndUpdate(
+            collection,
+            {
+                $push: {
+                    products: product
+                }
+            },
+            { new: true, useFindAndModify: false }
+        )
+        console.log(newCollection)
+        res.json({
+            "message": "Fetched Collection Successfully",
+            "status": "success",
+            "data": collection
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            "message": "Internal Server Error",
+            "status": "failed",
+            "error": err.message
+        })
+    }
+}
