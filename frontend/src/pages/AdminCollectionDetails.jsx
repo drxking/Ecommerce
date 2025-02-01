@@ -57,6 +57,8 @@ const AdminCollectionDetails = () => {
   function handleCloseCollectionTrigger(e) {
     if (addCollectionTriggered) {
       setAddCollectionTriggered(false);
+      products.current.value = "";
+      setfetchedProducts([]);
     }
   }
 
@@ -73,14 +75,37 @@ const AdminCollectionDetails = () => {
         }
       );
       if (response.data.status == "success") {
-        setfetchedProducts(response.data.data);
-        console.log(response);
+        const filteredCurrentArray = response?.data?.data?.filter(
+          (currentItem) =>
+            !data?.products?.some(
+              (prevItem) => prevItem._id === currentItem._id
+            )
+        );
+        setfetchedProducts(filteredCurrentArray);
       } else {
         setfetchedProducts([]);
       }
     }, 400);
   }
 
+  async function handleAddProduct(e) {
+    let response = await axios.patch(
+      `${import.meta.env.VITE_BASE_URL}/collections/${id}/${e}`,
+      {
+        withCredentials: true,
+      }
+    );
+    if (response.data.status == "success") {
+      setData((prevData) => ({
+        ...prevData, // spread the previous data object
+        products: [...prevData.products, fetchedProducts.find(item => item._id == e)],
+      }));
+    }
+  }
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
   return (
     <>
       <AdminNav />
@@ -107,8 +132,8 @@ const AdminCollectionDetails = () => {
           ))}
         </div>
         <div className="flex gap-6 flex-wrap mt-10">
-          {data?.products.map((e) => (
-            <Card key={e.name} {...e} />
+          {data?.products.map((e,index) => (
+            <Card key={index} {...e} />
           ))}
         </div>
         <div
@@ -119,7 +144,7 @@ const AdminCollectionDetails = () => {
             onClick={handleCloseCollectionTrigger}
             className=" h-full w-full absolute -z-10"
           ></div>
-          <div className="sm:w-[400px] w-full flex flex-col rounded-2xl h-[80%] bg-white p-5 backdrop-blur-md backdrop-brightness-90   ">
+          <div className="sm:w-[350px] w-full flex flex-col rounded-2xl h-[80%] bg-white p-5 backdrop-blur-md backdrop-brightness-90   ">
             <div className=" flex items-center justify-end">
               <i
                 onClick={handleCloseCollectionTrigger}
@@ -129,7 +154,7 @@ const AdminCollectionDetails = () => {
             <p className="text-xl font-[panchang]">
               Add Product to {data?.name} Collection
             </p>
-            <form className="py-3 relative h-full flex flex-col gap-3">
+            <form className="py-3  relative flex flex-col gap-3">
               <input
                 onChange={handleProduct}
                 ref={products}
@@ -137,10 +162,32 @@ const AdminCollectionDetails = () => {
                 placeholder="Search 'Products' "
                 className="p-2 duration-500 bg-gray-100 border border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
               />
-            {fetchedProducts?.map((e) => {
-              <p>{e.name}</p>;
-            })}
             </form>
+
+            <div className=" h-full w-full grid grid-cols-3 grid-rows-2 gap-3">
+              {fetchedProducts.map((prod) => (
+                <div
+                  key={prod.name}
+                  onClick={() => handleAddProduct(prod._id)}
+                  className="relative w-full cursor-pointer  flex py-2 justify-center items-end overflow-hidden"
+                >
+                  <img
+                    src={prod.imageLink}
+                    className="absolute -z-10 top-0 left-0  object-cover w-full h-full"
+                    alt=""
+                  />
+                  <div
+                    style={{
+                      background: `linear-gradient(180deg , transparent,transparent, #222)`,
+                    }}
+                    className="w-full h-full absolute  top-0 left-0"
+                  ></div>
+                  <p className="text-[10px] tracking-wider text-white text-center z-20">
+                    {prod.name}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
