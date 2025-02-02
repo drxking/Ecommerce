@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
+import ErrorLogger from "./errorLogger";
 
 const AddVendor = ({ open, handleClose, handleUpload }) => {
   let [file, setfile] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
   let name = useRef();
   let image = useRef();
   let email = useRef();
@@ -83,14 +85,18 @@ const AddVendor = ({ open, handleClose, handleUpload }) => {
     } catch (err) {
       console.log(err);
       setSubmitted(false);
+      setError(err.response.data.message);
     }
   }
+
+  
 
   return (
     <div
       ref={popup}
       className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
     >
+      <ErrorLogger err={error} />
       <div
         onClick={handleClose}
         className="close  -z-10  h-full w-full absolute"
@@ -192,6 +198,7 @@ const AddVendor = ({ open, handleClose, handleUpload }) => {
                 ref={image}
                 required={true}
                 onChange={handleImageChange}
+                accept="image/jpeg, image/png, image/jpg"
               />
               <div
                 onClick={handleImageClick}

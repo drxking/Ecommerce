@@ -15,12 +15,12 @@ let collectionRouter = require("./routes/collection.router")
 
 
 let app = express()
-app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ urlencoded: true }))
+app.use(morgan('dev'))
 app.use(cookieParser())
 app.use(cors({
-    origin: process.env.CORS_ACCESS,
+    origin: [process.env.CORS_ACCESS,"https://tsabinz.b-cdn.net"],
     credentials: true
 }))
 

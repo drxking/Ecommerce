@@ -1,4 +1,4 @@
-let vendorModel = require("../models/vendor.model")
+let {vendorModel} = require("../models/vendor.model")
 let {cloudinary} = require("../config/multer")
 module.exports.addVendor = async (req, res) => {
     try {

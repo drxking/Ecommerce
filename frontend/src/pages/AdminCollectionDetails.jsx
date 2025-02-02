@@ -87,6 +87,7 @@ const AdminCollectionDetails = () => {
       }
     }, 400);
   }
+  
 
   async function handleAddProduct(e) {
     let response = await axios.patch(

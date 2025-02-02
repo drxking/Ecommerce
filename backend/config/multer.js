@@ -13,8 +13,8 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'ecommerce', // Change folder name as needed
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif']// Optional image transformation
+        folder: 'ecommerce',
+        allowed_formats: ['jpg', 'jpeg', 'png']
     }
 });
 
