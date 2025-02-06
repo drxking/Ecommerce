@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
-import ErrorLogger from "./errorLogger";
 
 const AddVendor = ({ open, handleClose, handleUpload }) => {
   let [file, setfile] = useState(null);
@@ -96,7 +95,7 @@ const AddVendor = ({ open, handleClose, handleUpload }) => {
       ref={popup}
       className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
     >
-      <ErrorLogger err={error} />
+    
       <div
         onClick={handleClose}
         className="close  -z-10  h-full w-full absolute"

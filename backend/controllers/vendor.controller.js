@@ -1,5 +1,14 @@
-let {vendorModel} = require("../models/vendor.model")
-let {cloudinary} = require("../config/multer")
+require("dotenv").config()
+let generateRandomString = require("../utils/randomNameGenerator")
+let { vendorModel } = require("../models/vendor.model")
+const fs = require("fs");
+const axios = require("axios");
+
+const STORAGE_ZONE = process.env.STORAGE_ZONE;
+const API_KEY = process.env.API_KEY;
+const CDN_URL = process.env.CDN_URL; 
+const HOSTNAME = process.env.HOSTNAME;
+
 module.exports.addVendor = async (req, res) => {
     try {
         let { name, email, phone, address } = req.body;
@@ -9,9 +18,23 @@ module.exports.addVendor = async (req, res) => {
                 "status": "failed"
             })
         }
+        let generatedName = generateRandomString();
+        const file = req.file;
+        if (!file) return res.status(400).json({ "message": "No file uploaded", "status": "failed" });
+        const uploadUrl = `https://${HOSTNAME}/${STORAGE_ZONE}/vendors/${generatedName}.${file.originalname.split('.').pop()}`;
+
+        // Upload to BunnyCDN-
+        await axios.put(uploadUrl, file.buffer, {
+            headers: {
+                AccessKey: API_KEY,
+                "Content-Type": "application/octet-stream",
+            },
+        });
+
+
         let vendor = await vendorModel.create({
             name,
-            imageLink: req.file.path,
+            imageLink: `${CDN_URL}/vendors/${generatedName}.${file.originalname.split('.').pop()}`,
             contactEmail: email,
             contactPhone: phone,
             address
@@ -38,7 +61,7 @@ module.exports.getVendors = async (req, res) => {
             "data": vendors,
             "status": "success"
         })
-    } catch (err) {
+    } catch (err) {--
         console.log(err)
     }
 }
@@ -64,21 +87,27 @@ module.exports.updateVendor = async (req, res) => {
     }
 }
 
-module.exports.deleteVendor = async (req,res)=>{
-    try{
+module.exports.deleteVendor = async (req, res) => {
+    try {
         let vendor = await vendorModel.findOneAndDelete({
-            _id:req.params.id
+            _id: req.params.id
         })
         let imageUrl = vendor.imageLink;
-        let pathParts = imageUrl.split('/').slice(-2);
-        let public_id = pathParts[0] + '/' + pathParts[1].split(".")[0];
-        await cloudinary.uploader.destroy(public_id)
+        let pathParts = imageUrl.split('/').pop()
+
+        // Delete from BunnyCDN
+        await axios.delete(`https://${HOSTNAME}/${STORAGE_ZONE}/vendors/${pathParts}`, {
+            headers: {
+                AccessKey: API_KEY,
+            }
+        });
+
         res.json({
-            "message":`${vendor.name} deleted successfully`,
-            "data":vendor,
-            "status":"success"
+            "message": `${vendor.name} deleted successfully`,
+            "data": vendor,
+            "status": "success"
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
     }
 }
