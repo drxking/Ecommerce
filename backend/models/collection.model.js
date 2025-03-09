@@ -17,10 +17,7 @@ let collectionSchema = mongoose.Schema({
     }],
     thumbnailImageLink: {
         type: String,
-    },
-    bannerImageLink: {
-        type: String,
-    },
+    }
 })
 
 module.exports = mongoose.model("collect", collectionSchema);
