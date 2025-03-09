@@ -84,14 +84,14 @@ const AdminCollection = () => {
         ) : (
           data.map((e) => (
             <Link
-              key={e.name}
+              key={e.name + e._id} 
               className="relative  inline-block"
               to={`/admin/collections/${e._id}`}
             >
               <img
                 loading="lazy"
                 src={e.thumbnailImageLink}
-                className="w-full  h-full object-cover"
+                className="w-full  h-full max-h-[450px] object-cover"
                 alt=""
               />
               <p className="absolute shadow-2xl leading-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-[panchang] text-2xl px-2 w-full text-center text-white">

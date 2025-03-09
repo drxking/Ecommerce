@@ -9,7 +9,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   const [fetchedProducts, setfetchedProducts] = useState([]);
   const [selectedProducts, setselectedProducts] = useState([]);
   const [thumbnails, setthumbnails] = useState();
-  const [banners, setbanners] = useState();
 
   let name = useRef();
   let type = useRef();
@@ -17,8 +16,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   let dropdown_type = useRef();
   let thumbnail = useRef();
   let preview = useRef();
-  let banner = useRef();
-  let preview2 = useRef();
   let dropdown_product = useRef();
 
   const popup = useRef(null);
@@ -27,7 +24,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     if (open) {
       popup.current.style.opacity = 1;
       popup.current.style.pointerEvents = "unset";
-
     } else {
       popup.current.style.opacity = 0;
       popup.current.style.pointerEvents = "none";
@@ -39,6 +35,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     name.current.value = "";
     type.current.value = "";
     products.current.value = "";
+    preview.current.src = "";
     setselectedProducts([]);
     setselectedTypes([]);
     setfetchedProducts([]);
@@ -53,9 +50,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     for (let file of thumbnails) {
       formData.append("thumbnail", file);
     }
-    for (let file of banners) {
-      formData.append("banner", file);
-    }
     formData.append("name", name.current.value);
 
     let shouldSendType = selectedTypes.map((e) => {
@@ -65,14 +59,13 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       return e._id;
     });
 
-    shouldSendType.forEach((i)=>{
+    shouldSendType.forEach((i) => {
       formData.append("type[]", i);
-    })
-    shouldSendProduct.forEach((i)=>{
+    });
+    shouldSendProduct.forEach((i) => {
       formData.append("products[]", i);
-    })
-    
-    
+    });
+
     try {
       let response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/collections`,
@@ -198,24 +191,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
     thumbnail.current.click();
   }
 
-  function handleBannerChange() {
-    const file = event.target.files[0];
-    setbanners(event.target.files);
-    if (file) {
-      const reader = new FileReader();
-
-      // When the file is loaded, update the img src and make it visible
-      reader.onload = function (e) {
-        preview2.current.src = e.target.result;
-        preview2.current.style.opacity = 1;
-      };
-
-      reader.readAsDataURL(file);
-    }
-  }
-  function handleBannerClick() {
-    banner.current.click();
-  }
   return (
     <div
       ref={popup}
@@ -425,33 +400,6 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </div>
           </div>
 
-          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
-            <label
-              htmlFor="image"
-              className="text-sm w-[40%] font-semibold text-gray-800"
-            >
-              Banner
-            </label>
-
-            <div className="w-full flex gap-2 px-5">
-              <input
-                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
-                placeholder="Los Angeles"
-                id="image"
-                type="file"
-                ref={banner}
-                required={true}
-                onChange={handleBannerChange}
-              />
-              <div
-                onClick={handleBannerClick}
-                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
-              >
-                <i className="ri-image-add-line text-2xl"></i>
-              </div>
-              <img ref={preview2} className="w-36 shadow-2xl z-10 opacity-0" />
-            </div>
-          </div>
           <div className="flex justify-end">
             <button
               id="submit"

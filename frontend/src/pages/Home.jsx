@@ -68,9 +68,8 @@ const Home = () => {
           className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
         >
           <img
-            src={banners ? banners[0]?.bannerImageLink : ""}
+            src="https://cdn.shopify.com/s/files/1/0527/4291/4198/files/Le_Drakkar_Viking_2.jpg?v=1726687297"
             className="w-full h-full object-cover relative top-0  left-0"
-            alt={banners ? banners[0]?.bannerImageLink : ""}
           />
           <div className="absolute flex flex-col items-center">
             <h2 className=" font-[panchang] text-3xl  md:text-5xl">
