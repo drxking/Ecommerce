@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 let links = [
   {
     name: "Products",
-    link: "/admin/",
+    link: "/admin/products",
   },
   {
     name: "Collections",

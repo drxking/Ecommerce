@@ -1,7 +1,6 @@
 const { vendorValidationSchema } = require('../models/vendor.model');
 
 const validateVendor = (req, res, next) => {
-    console.log(req.body);
     const { error } = vendorValidationSchema.validate({
         contactEmail: req.body.email,
         contactPhone: req.body.phone,

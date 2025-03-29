@@ -6,6 +6,7 @@ import AdminAuthenticator from "../components/AdminAuthenticator";
 import Vendors from "../pages/Vendors";
 import AdminCollection from "../pages/AdminCollection";
 import AdminCollectionDetails from "../pages/AdminCollectionDetails";
+import AdminProducts from "../pages/AdminProducts";
 
 const AdminRouter = () => {
   return (
@@ -40,6 +41,14 @@ const AdminRouter = () => {
         element={
           <AdminAuthenticator>
             <AdminCollectionDetails />
+          </AdminAuthenticator>
+        }
+      />
+      <Route
+        path="/products"
+        element={
+          <AdminAuthenticator>
+            <AdminProducts />
           </AdminAuthenticator>
         }
       />

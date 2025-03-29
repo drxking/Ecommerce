@@ -20,7 +20,7 @@ app.use(express.urlencoded({ urlencoded: true }))
 app.use(morgan('dev'))
 app.use(cookieParser())
 app.use(cors({
-    origin: [process.env.CORS_ACCESS,"https://tsabinz.b-cdn.net"],
+    origin: process.env.CORS_ACCESS,
     credentials: true
 }))
 

@@ -68,11 +68,11 @@ const Home = () => {
           className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
         >
           <img
-            src="https://cdn.shopify.com/s/files/1/0527/4291/4198/files/Le_Drakkar_Viking_2.jpg?v=1726687297"
+            src="https://res.cloudinary.com/dgcpqppcd/image/upload/v1737900334/Firefly_20250126194747_1_rkka2v.png"
             className="w-full h-full object-cover relative top-0  left-0"
           />
           <div className="absolute flex flex-col items-center">
-            <h2 className=" font-[panchang] text-3xl  md:text-5xl">
+            <h2 className=" font-[panchang] text-3xl text-center md:text-5xl">
               {banners ? banners[0]?.name : ""}
             </h2>
             <Link
@@ -84,7 +84,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-
+ 
       <div className="w-full  py-3 flex-1  justify-start md:px-5 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3">
         {collection?.data?.map((e, index) => (
           <Link
@@ -92,12 +92,12 @@ const Home = () => {
             key={index}
             className={
               index == 2
-                ? "h-full relative  object-cover sm:col-span-2 md:col-span-1"
-                : "h-full relative  sm:col-span-1 object-cover"
+                ? "h-full relative  object-cover sm:col-span-2 group md:col-span-1 overflow-hidden"
+                : "h-full relative  sm:col-span-1 object-cover group overflow-hidden"
             }
           >
             <img
-              className="h-full  sm:w-full w-full brightness-[80%] object-cover"
+              className="h-full  sm:w-full w-full brightness-[80%] group-hover:scale-105 object-cover duration-500"
               src={e.thumbnailImageLink}
               alt=""
             />
