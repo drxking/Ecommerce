@@ -21,3 +21,27 @@ module.exports.getSearchType = async (req, res) => {
         console.log(err)
     }
 }
+
+module.exports.addType = async (req,res) =>{
+    try{
+        let {category} = req.body;
+        let type = await typeModel.findOne({name:category})
+        if(type){
+            res.send({
+                "message":"Type Already Exists",
+                "status":"failed", 
+            })
+        }
+        else{
+            type = await typeModel.create({name:category})
+            res.send({
+                "message":"Type Created Successfully",
+                "status":"success",
+                "data":type
+            })
+        }
+
+    }catch(err){
+        console.log(err)
+    }
+}

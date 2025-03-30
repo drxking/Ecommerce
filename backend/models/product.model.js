@@ -39,7 +39,13 @@ let productSchema = mongoose.Schema({
         {
             type: String
         }
-    ]
+    ],
+    stock: {
+        type: Number
+    },
+    remainingStock: {
+        type: Number
+    },
 })
 
 module.exports = mongoose.model("product", productSchema);
