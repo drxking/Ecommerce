@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import AdminNav from "../components/AdminNav";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Card from "../components/Card";
 import { useGSAP } from "@gsap/react";
@@ -13,9 +13,11 @@ const AdminCollectionDetails = () => {
   const [addCollectionTriggered, setAddCollectionTriggered] = useState(false);
 
   const [fetchedProducts, setfetchedProducts] = useState([]);
+  let navigate = useNavigate()
 
   let panel = useRef(null);
   let products = useRef();
+  let popupDelete = useRef(null);
 
   async function fetchOneCollectionn() {
     let response = await axios.get(
@@ -87,11 +89,15 @@ const AdminCollectionDetails = () => {
       }
     }, 400);
   }
-  
 
-  async function handleAddProduct(e) {
+
+  async function handleAddProduct(e, productId) {
+    e.currentTarget.classList.add("hidden")
     let response = await axios.patch(
-      `${import.meta.env.VITE_BASE_URL}/collections/${id}/${e}`,
+      `${import.meta.env.VITE_BASE_URL}/collections/${id}/add/${productId}`,
+      {
+
+      },
       {
         withCredentials: true,
       }
@@ -99,28 +105,98 @@ const AdminCollectionDetails = () => {
     if (response.data.status == "success") {
       setData((prevData) => ({
         ...prevData, // spread the previous data object
-        products: [...prevData.products, fetchedProducts.find(item => item._id == e)],
+        products: [...prevData.products, fetchedProducts.find(item => item._id == productId)],
+      }));
+
+    }
+  }
+  async function handleProductRemove(e, productId) {
+    // let card = e.currentTarget.parentElement;
+    let i = e.currentTarget.querySelector("i")
+    i.classList.add("opacity-0")
+    let spinner = e.currentTarget.querySelector(".spinner")
+    spinner.classList.remove("hidden")
+    spinner.classList.add("block")
+    let response = await axios.patch(
+      `${import.meta.env.VITE_BASE_URL}/collections/${id}/remove/${productId}`,
+      {
+
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    if (response.data.status == "success") {
+      i.classList.remove("opacity-0")
+      spinner.classList.add("hidden")
+      spinner.classList.remove("block")
+      setData((prevData) => ({
+        ...prevData, // spread the previous data object
+        products: prevData.products.filter((item) => item._id !== productId),
       }));
     }
   }
+  async function handleCollectionRemove() {
+    let response = await axios.delete(
+      `${import.meta.env.VITE_BASE_URL}/collections/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+    if (response.data.status == "success") {
+      navigate("/admin/collections")
+    }
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  }
+
   return (
     <>
       <AdminNav />
+      <div ref={popupDelete} className=" popup-delete duration-300 fixed h-full w-full top-0 left-0 z-50 backdrop-blur-sm bg-black/30  pointer-events-none opacity-0  flex items-center justify-center">
+        <div className=" bg-white rounded-2xl p-3 flex flex-col ">
+          <p className="text-lg font-medium ">Are you sure,</p>
+          <p className="text-sm text-gray-700 font-medium border-b pb-2 sm:pr-10 pr-5">You want to delete collection?</p>
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <button onClick={(e) => {
+              e.stopPropagation();
+              popupDelete.current.classList.add("opacity-0")
+              popupDelete.current.classList.remove("pointer-events-auto")
+              popupDelete.current.classList.remove("opacity-100")
+              popupDelete.current.classList.add("pointer-events-none")
+            }} className="px-2 py-1 bg-black  text-sm text-white rounded-md">Cancel</button>
+            <button onClick={handleCollectionRemove} className="px-2 py-1 bg-red-600 text-sm text-white rounded-md">Delete</button>
+          </div>
+        </div>
+      </div>
+
+
       <main className="md:px-20 px-5 p-5 pt-10 relative">
         <div className="flex items-center justify-between">
           <h1 className="font-[panchang] font-semibold md:font-semibold md:text-3xl text-2xl leading-none">
-            {data?.name} Collection
+            {data?.name}
           </h1>
-          <button
-            onClick={handleAddCollectionTrigger}
-            className="bg-[url(/mask2.webp)] text-nowrap bg-cover bg-no-repeat py-2 px-4 rounded-full text-sm font-semibold text-white"
-          >
-            Add Product
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                popupDelete.current.classList.remove("opacity-0")
+                popupDelete.current.classList.add("pointer-events-auto")
+                popupDelete.current.classList.add("opacity-100")
+                popupDelete.current.classList.remove("pointer-events-none")
+              }}
+              title="Remove Collection"
+              className="bg-black text-nowrap bg-cover bg-no-repeat p-2 flex items-center justify-center rounded-full text-sm font-semibold text-white"
+            >
+              <i className="ri-delete-bin-line leading-none text-md"></i>
+            </button>
+            <button
+              onClick={handleAddCollectionTrigger}
+              className="bg-[url(/mask2.webp)] text-nowrap bg-cover bg-no-repeat py-2 px-4 rounded-full text-sm font-semibold text-white"
+            >
+              Add Product
+            </button>
+          </div>
         </div>
         <div className="tags flex flex-wrap gap-2 py-2">
           {data?.type.map((e) => (
@@ -133,8 +209,8 @@ const AdminCollectionDetails = () => {
           ))}
         </div>
         <div className="flex gap-6 flex-wrap mt-10">
-          {data?.products.map((e,index) => (
-            <Card key={index} {...e} />
+          {data?.products.map((e, index) => (
+            <Card handleRemove={handleProductRemove} key={index} {...e} isAdmin={true} />
           ))}
         </div>
         <div
@@ -169,20 +245,21 @@ const AdminCollectionDetails = () => {
               {fetchedProducts.map((prod) => (
                 <div
                   key={prod.name}
-                  onClick={() => handleAddProduct(prod._id)}
-                  className="relative w-full cursor-pointer  flex py-2 justify-center items-end overflow-hidden"
+                  onClick={(e) => handleAddProduct(e, prod._id)}
+                  className="relative w-full cursor-pointer z-50  flex py-2 justify-center items-end overflow-hidden"
                 >
-                  <img
-                    src={prod.imageLink}
-                    className="absolute -z-10 top-0 left-0  object-cover w-full h-full"
-                    alt=""
-                  />
                   <div
                     style={{
                       background: `linear-gradient(180deg , transparent,transparent, #222)`,
                     }}
                     className="w-full h-full absolute  top-0 left-0"
                   ></div>
+                  <img
+                    src={prod.imageLink}
+                    className="absolute -z-10 top-0 left-0  object-cover w-full h-full"
+                    alt=""
+                  />
+
                   <p className="text-[10px] tracking-wider text-white text-center z-20">
                     {prod.name}
                   </p>

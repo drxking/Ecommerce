@@ -194,3 +194,54 @@ module.exports.addProductToCollection = async (req, res) => {
     })
   }
 }
+
+module.exports.removeProductFromCollection = async (req, res) => {
+  let collection = req.params.collection;
+  let product = req.params.product
+  try {
+    let newCollection = await collectionModel.findByIdAndUpdate(
+      collection,
+      {
+        $pull: {
+          products: product
+        }
+      },
+      { new: true, useFindAndModify: false }
+    )
+    console.log(newCollection)
+    res.json({
+      "message": "Fetched Collection Successfully",
+      "status": "success",
+      "data": collection
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      "message": "Internal Server Error",
+      "status": "failed",
+      "error": err.message
+    })
+  }
+}
+
+module.exports.removeCollection = async (req, res) => {
+  let { id } = req.params
+  try {
+    let collection = await collectionModel.findByIdAndDelete(id)
+    if (collection) {
+      res.json({
+        "message": "Deleted Collection Successfully",
+        "status": "success",
+        "data": collection
+      })
+    }
+  }
+  catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      "message": "Internal Server Error",
+      "status": "failed",
+      "error": err.message
+    })
+  }
+}
