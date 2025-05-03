@@ -1,14 +1,9 @@
-const { mongoose } = require("mongoose");
 let collectionModel = require("../models/collection.model");
 const generateRandomString = require("../utils/randomNameGenerator");
 
-const STORAGE_ZONE = process.env.STORAGE_ZONE;
-const API_KEY = process.env.API_KEY;
-const CDN_URL = process.env.CDN_URL; 
-const HOSTNAME = process.env.HOSTNAME;
-
 const multer = require("multer");
 const axios = require("axios");
+const cloudinary = require('cloudinary').v2;
 
 // Set up multer storage
 const storage = multer.memoryStorage();
@@ -33,13 +28,13 @@ module.exports.addCollection = async (req, res) => {
     const thumbnailFile = req.files.thumbnail[0];
 
     // Upload files to BunnyCDN
-    if(!thumbnailFile) {
+    if (!thumbnailFile) {
       return res.status(400).json({
         "message": "Thumbnail Image required",
         "status": "failed"
       });
     }
-    const thumbnailUploadResponse = await uploadToBunnyCDN(thumbnailFile);
+    const thumbnailUploadResponse = await uploadToCloudinary(thumbnailFile);
 
     let collection = await collectionModel.create({
       name,
@@ -64,17 +59,26 @@ module.exports.addCollection = async (req, res) => {
   }
 };
 
-async function uploadToBunnyCDN(file) {
-  let generatedName = generateRandomString();
-  const url = `https://${HOSTNAME}/${STORAGE_ZONE}/collection/${generatedName}.${file.originalname.split('.').pop()}`;
-  const response = await axios.put(url, file.buffer, {
-    headers: {
-      "AccessKey": API_KEY,
-      "Content-Type": "application/octet-stream"
-    }
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+async function uploadToCloudinary(file) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "collection", resource_type: "image" },
+      (error, result) => {
+        if (error) return reject(error);
+        console.log(result.secure_url);
+        resolve(result.secure_url);
+
+      }
+    );
+    stream.end(file.buffer);
   });
-  let imageUrl = `${CDN_URL}/collection/${generatedName}.${file.originalname.split('.').pop()}`
-  return imageUrl;
 }
 
 module.exports.getThreeCollection = async (req, res) => {

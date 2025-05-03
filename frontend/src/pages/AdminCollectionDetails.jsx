@@ -11,7 +11,6 @@ const AdminCollectionDetails = () => {
   const [data, setData] = useState();
   const { id } = useParams();
   const [addCollectionTriggered, setAddCollectionTriggered] = useState(false);
-
   const [fetchedProducts, setfetchedProducts] = useState([]);
   let navigate = useNavigate()
 

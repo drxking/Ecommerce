@@ -24,7 +24,6 @@ app.use(cors({
     credentials: true
 }))
 
-
 app.use("/users", userRouter)
 app.use("/products", productRouter)
 app.use("/admin", adminRouter)
