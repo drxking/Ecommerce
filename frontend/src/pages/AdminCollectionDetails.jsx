@@ -135,7 +135,8 @@ const AdminCollectionDetails = () => {
       }));
     }
   }
-  async function handleCollectionRemove() {
+  async function handleCollectionRemove(e) {
+    e.currentTarget.innerText = "Deleting..."
     let response = await axios.delete(
       `${import.meta.env.VITE_BASE_URL}/collections/${id}`,
       {
@@ -152,18 +153,22 @@ const AdminCollectionDetails = () => {
     <>
       <AdminNav />
       <div ref={popupDelete} className=" popup-delete duration-300 fixed h-full w-full top-0 left-0 z-50 backdrop-blur-sm bg-black/30  pointer-events-none opacity-0  flex items-center justify-center">
-        <div className=" bg-white rounded-2xl p-3 flex flex-col ">
-          <p className="text-lg font-medium ">Are you sure,</p>
-          <p className="text-sm text-gray-700 font-medium border-b pb-2 sm:pr-10 pr-5">You want to delete collection?</p>
-          <div className="flex items-center justify-end gap-2 mt-2">
+        <div className=" items-center bg-white rounded-2xl px-10 py-6 flex flex-col ">
+          <div className="bg-red-500 rounded-full p-3 flex items-center justify-center">
+          <i class="ri-alert-line leading-none text-2xl text-white"></i>
+          </div>
+          <p className="text-lg font-semibold pt-2">Are you sure?</p>
+          <p className="w-64 text-center text-sm leading-4 pb-5 pt-2 text-gray-400 font-medium">This action cannot be undone. The collection will be removed permanently.</p>
+          <div className="flex flex-col w-64 gap-2 text-white font-semibold" >
+            <button onClick={handleCollectionRemove} className="bg-red-500 p-1 rounded-md">Delete</button>
             <button onClick={(e) => {
               e.stopPropagation();
               popupDelete.current.classList.add("opacity-0")
               popupDelete.current.classList.remove("pointer-events-auto")
               popupDelete.current.classList.remove("opacity-100")
               popupDelete.current.classList.add("pointer-events-none")
-            }} className="px-2 py-1 bg-black  text-sm text-white rounded-md">Cancel</button>
-            <button onClick={handleCollectionRemove} className="px-2 py-1 bg-red-600 text-sm text-white rounded-md">Delete</button>
+            }} className="text-black border-gray-300 border p-1 rounded-md">Cancel</button>
+
           </div>
         </div>
       </div>

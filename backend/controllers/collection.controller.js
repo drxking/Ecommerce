@@ -229,23 +229,39 @@ module.exports.removeProductFromCollection = async (req, res) => {
 }
 
 module.exports.removeCollection = async (req, res) => {
-  let { id } = req.params
+  let { id } = req.params;
   try {
-    let collection = await collectionModel.findByIdAndDelete(id)
+    let collection = await collectionModel.findByIdAndDelete(id);
     if (collection) {
+      // Extract the public ID from the Cloudinary URL
+      const publicId = collection.thumbnailImageLink.split('/').pop().split('.')[0];
+
+      // Delete the image from Cloudinary
+      await cloudinary.uploader.destroy(`collection/${publicId}`, (error, result) => {
+        if (error) {
+          console.log("Error deleting image from Cloudinary:", error);
+        } else {
+          console.log("Image deleted from Cloudinary:", result);
+        }
+      });
+
       res.json({
         "message": "Deleted Collection Successfully",
         "status": "success",
         "data": collection
-      })
+      });
+    } else {
+      res.status(404).json({
+        "message": "Collection not found",
+        "status": "failed"
+      });
     }
-  }
-  catch (err) {
-    console.log(err)
+  } catch (err) {
+    console.log(err);
     return res.status(500).json({
       "message": "Internal Server Error",
       "status": "failed",
       "error": err.message
-    })
+    });
   }
-}
+};

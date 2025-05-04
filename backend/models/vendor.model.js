@@ -67,7 +67,7 @@ module.exports.vendorValidationSchema = Joi.object({
         }),
 
     address: Joi.string()
-        .min(10)
+        .min(3)
         .max(200)
         .required()
         .messages({

@@ -1,13 +1,18 @@
 require("dotenv").config()
-let generateRandomString = require("../utils/randomNameGenerator")
 let { vendorModel } = require("../models/vendor.model")
-const fs = require("fs");
 const axios = require("axios");
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 
-const STORAGE_ZONE = process.env.STORAGE_ZONE;
-const API_KEY = process.env.API_KEY;
-const CDN_URL = process.env.CDN_URL; 
-const HOSTNAME = process.env.HOSTNAME;
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 module.exports.addVendor = async (req, res) => {
     try {
@@ -16,42 +21,56 @@ module.exports.addVendor = async (req, res) => {
             return res.status(400).json({
                 "message": "Every Field is needed",
                 "status": "failed"
-            })
+            });
         }
-        let generatedName = generateRandomString();
+
         const file = req.file;
         if (!file) return res.status(400).json({ "message": "No file uploaded", "status": "failed" });
-        const uploadUrl = `https://${HOSTNAME}/${STORAGE_ZONE}/vendors/${generatedName}.${file.originalname.split('.').pop()}`;
 
-        // Upload to BunnyCDN-
-        await axios.put(uploadUrl, file.buffer, {
-            headers: {
-                AccessKey: API_KEY,
-                "Content-Type": "application/octet-stream",
-            },
-        });
+        console.log(file);
 
+        // Upload to Cloudinary using upload_stream
+        const uploadStream = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "vendors", use_filename: true },
+                    (error, result) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result);
+                        }
+                    }
+                );
+                stream.end(file.buffer);
+            });
+        };
+
+        const result = await uploadStream();
+
+        console.log(result);
 
         let vendor = await vendorModel.create({
             name,
-            imageLink: `${CDN_URL}/vendors/${generatedName}.${file.originalname.split('.').pop()}`,
+            imageLink: result.secure_url,
             contactEmail: email,
             contactPhone: phone,
             address
-        })
+        });
+
         res.json({
             "message": "Vendor Added Successfully",
             "data": vendor,
             "status": "success"
-        })
+        });
     } catch (err) {
         res.status(500).json({
             "message": "Something Went Wrong",
             "status": "failed"
-        })
-        console.log(err)
+        });
+        console.log(err);
     }
-}
+};
 
 module.exports.getVendors = async (req, res) => {
     try {
@@ -91,23 +110,31 @@ module.exports.deleteVendor = async (req, res) => {
     try {
         let vendor = await vendorModel.findOneAndDelete({
             _id: req.params.id
-        })
-        let imageUrl = vendor.imageLink;
-        let pathParts = imageUrl.split('/').pop()
-
-        // Delete from BunnyCDN
-        await axios.delete(`https://${HOSTNAME}/${STORAGE_ZONE}/vendors/${pathParts}`, {
-            headers: {
-                AccessKey: API_KEY,
-            }
         });
+
+        if (!vendor) {
+            return res.status(404).json({
+                "message": "Vendor not found",
+                "status": "failed"
+            });
+        }
+
+        let imageUrl = vendor.imageLink;
+        let publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID from URL
+
+        // Delete from Cloudinary
+        await cloudinary.uploader.destroy(`vendors/${publicId}`);
 
         res.json({
             "message": `${vendor.name} deleted successfully`,
             "data": vendor,
             "status": "success"
-        })
+        });
     } catch (err) {
-        console.log(err)
+        res.status(500).json({
+            "message": "Something went wrong",
+            "status": "failed"
+        });
+        console.log(err);
     }
-}
+};
