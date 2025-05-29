@@ -10,7 +10,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   const [selectedProducts, setselectedProducts] = useState([]);
   const [thumbnails, setthumbnails] = useState();
 
-  let name = useRef();
+  let name = useRef(); 
   let type = useRef();
   let products = useRef();
   let dropdown_type = useRef();
