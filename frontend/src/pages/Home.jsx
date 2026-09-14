@@ -98,7 +98,7 @@ const Home = () => {
           {(homeConfig?.banner?.title || (homeConfig?.banner?.redirectLink && homeConfig?.banner?.redirectLink !== "/")) && (
             <div className="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center text-center p-4">
               {homeConfig?.banner?.title && (
-                <h1 className="text-white font-[panchang] font-black text-3xl sm:text-5xl md:text-6xl tracking-wider uppercase drop-shadow-lg mb-4">
+                <h1 className="text-white font-[panchang] font-black text-3xl sm:text-5xl md:text-6xl tracking-wider uppercase mb-4">
                   {homeConfig.banner.title}
                 </h1>
               )}
