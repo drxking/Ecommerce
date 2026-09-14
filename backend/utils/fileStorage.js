@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config()
 
 /**
  * Returns the full accessible URL for a stored file.
