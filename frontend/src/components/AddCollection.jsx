@@ -11,6 +11,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   const [thumbnails, setthumbnails] = useState();
 
   let name = useRef(); 
+  let description = useRef();
   let type = useRef();
   let products = useRef();
   let dropdown_type = useRef();
@@ -33,6 +34,7 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
 
   function clearForm() {
     name.current.value = "";
+    if (description.current) description.current.value = "";
     type.current.value = "";
     products.current.value = "";
     preview.current.src = "";
@@ -51,6 +53,9 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
       formData.append("thumbnail", file);
     }
     formData.append("name", name.current.value);
+    if (description.current?.value) {
+      formData.append("description", description.current.value);
+    }
 
     let shouldSendType = selectedTypes.map((e) => {
       return e._id;
@@ -194,96 +199,112 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
   return (
     <div
       ref={popup}
-      className="fixed duration-200  opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
+      className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen bg-black/80 backdrop-blur-md z-50 px-4 flex items-center justify-center"
     >
       <div
         onClick={handleClose}
-        className="close  -z-10  h-full w-full absolute"
+        className="close -z-10 h-full w-full absolute cursor-pointer"
       ></div>
-      <div className="post w-[450px] rounded-3xl bg-white p-8  text-black">
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl">Add Collection</h2>
-          <div className="button cursor-pointer">
-            <i
-              onClick={handleClose}
-              className="ri-close-line text-2xl leading-none"
-            ></i>
-          </div>
+      <div
+        className="post w-full max-w-lg bg-neutral-900 border border-neutral-800 p-6 md:p-8 text-white shadow-2xl rounded-none"
+        style={{ borderRadius: 0 }}
+      >
+        <div className="flex justify-between items-center border-b border-neutral-800 pb-4">
+          <h2 className="font-bold text-lg md:text-xl uppercase tracking-wider font-[panchang]">
+            Add Collection
+          </h2>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition"
+          >
+            <i className="ri-close-line text-2xl leading-none"></i>
+          </button>
         </div>
-        <form onSubmit={handleSubmit} className="pt-5">
-          <div className="name flex border-t gap-6 pt-3  border-gray-200 py-2">
+
+        <form onSubmit={handleSubmit} className="pt-4 space-y-4">
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="name"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Name
+              Name <span className="text-red-400">*</span>
             </label>
             <input
               ref={name}
-              className="p-2 border duration-500 border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-              placeholder="Mens Collection"
+              required
+              className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+              placeholder="e.g. Mens Collection"
               id="name"
               type="text"
+              style={{ borderRadius: 0 }}
             />
           </div>
 
-          <div className=" flex border-t  gap-6 pt-3  border-gray-200 py-2">
+          <div className="description flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
+            <label
+              htmlFor="description"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
+            >
+              Description
+            </label>
+            <textarea
+              ref={description}
+              className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+              placeholder="Collection description for storefront..."
+              id="description"
+              rows="2"
+              style={{ borderRadius: 0 }}
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="type"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300 pt-1"
             >
               Type
             </label>
             <div className="w-full relative">
-              {selectedTypes.length != 0 ? (
-                <div className="flex flex-wrap gap-1 items-center py-1">
+              {selectedTypes.length !== 0 && (
+                <div className="flex flex-wrap gap-1.5 items-center pb-2">
                   {selectedTypes.map((tp, index) => (
                     <span
                       key={index}
-                      className="text-sm bg-black rounded-full relative p-1  px-3 pr-7 inline-block text-white"
+                      className="text-xs bg-neutral-800 border border-neutral-700 text-neutral-200 px-2.5 py-1 inline-flex items-center gap-1.5 rounded-none"
+                      style={{ borderRadius: 0 }}
                     >
                       {tp.name}
                       <i
                         onClick={() => handleTypeClickRemove(tp)}
-                        className="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
+                        className="ri-close-line cursor-pointer bg-neutral-700 hover:bg-white hover:text-black h-3.5 w-3.5 flex items-center justify-center text-[10px] transition"
                       ></i>
                     </span>
                   ))}
                 </div>
-              ) : (
-                ""
               )}
               <input
                 autoComplete="off"
                 onChange={handleType}
                 ref={type}
                 onFocus={() => (dropdown_type.current.style.display = "flex")}
-                className="p-2 border duration-500 border-gray-300 w-full  focus:outline-none rounded-lg text-sm"
-                placeholder="Search 'T-shirt' "
+                className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+                placeholder="Search 'T-shirt'..."
                 id="type"
                 type="text"
+                style={{ borderRadius: 0 }}
               />
               <div
                 ref={dropdown_type}
-                style={{ boxShadow: "0 0 2px #222" }}
-                className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
+                className="w-full absolute flex flex-col z-30 bg-neutral-900 border border-neutral-800 shadow-2xl max-h-40 overflow-y-auto rounded-none mt-1"
+                style={{ borderRadius: 0, display: "none" }}
               >
                 {fetchedTypes.map((ty, index) =>
-                  selectedTypes.some((item) => item._id === ty._id) ? (
-                    <p key={index} className="hidden">
-                      {ty.name}
-                    </p>
-                  ) : (
+                  selectedTypes.some((item) => item._id === ty._id) ? null : (
                     <p
                       key={index}
-                      onClick={() => {
-                        handleTypeClick(ty);
-                      }}
-                      className={
-                        index == 0
-                          ? "p-2 text-sm border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                          : "p-2 text-sm border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                      }
+                      onClick={() => handleTypeClick(ty)}
+                      className="p-2.5 text-xs text-neutral-200 border-b border-neutral-800/60 hover:bg-neutral-800 cursor-pointer capitalize last:border-0"
                     >
                       {ty.name}
                     </p>
@@ -293,36 +314,35 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
             </div>
           </div>
 
-          <div className="border-t  flex gap-6 pt-3  border-gray-200 py-2">
+          <div className="border-t border-neutral-800 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 pt-3">
             <label
               htmlFor="products"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300 pt-1"
             >
               Products
             </label>
             <div className="relative w-full">
-              {selectedProducts.length != 0 ? (
-                <div className="flex flex-wrap gap-1 my-1 max-h-16 overflow-scroll no-scroller items-center py-1">
+              {selectedProducts.length !== 0 && (
+                <div className="flex flex-wrap gap-1.5 pb-2 max-h-20 overflow-y-auto items-center">
                   {selectedProducts.map((tp, index) => (
                     <span
                       key={index}
-                      className="text-sm bg-black max-w-40 rounded-full relative truncate p-1  px-3  pl-7 pr-7   inline-block text-white"
+                      className="text-xs bg-neutral-800 border border-neutral-700 text-neutral-200 px-2 py-1 inline-flex items-center gap-1.5 max-w-[160px] truncate rounded-none"
+                      style={{ borderRadius: 0 }}
                     >
                       <img
-                        className="inline-block text-xs h-5 w-5  absolute left-1 object-cover rounded-full top-1/2 -translate-y-1/2"
+                        className="h-4 w-4 object-cover rounded-none"
                         src={tp.imageLink}
                         alt={tp.name}
                       />
-                      {tp.name}
+                      <span className="truncate">{tp.name}</span>
                       <i
                         onClick={() => handleProductClickRemove(tp)}
-                        className="ri-close-line top-1/2 -translate-y-1/2 cursor-pointer absolute right-1 mr-1 bg-white h-4 flex items-center justify-center  w-4 rounded-full text-sm text-black"
+                        className="ri-close-line cursor-pointer bg-neutral-700 hover:bg-white hover:text-black h-3.5 w-3.5 flex items-center justify-center text-[10px] transition"
                       ></i>
                     </span>
                   ))}
                 </div>
-              ) : (
-                ""
               )}
               <input
                 autoComplete="off"
@@ -331,36 +351,28 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
                   (dropdown_product.current.style.display = "flex")
                 }
                 ref={products}
-                className="p-2 border duration-500 border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-                placeholder="Search 'Graphic Hoodie'"
+                className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+                placeholder="Search 'Graphic Hoodie'..."
                 id="products"
                 type="text"
+                style={{ borderRadius: 0 }}
               />
               <div
                 ref={dropdown_product}
-                style={{ boxShadow: "0 0 2px #222" }}
-                className=" w-full absolute flex flex-col z-20 bg-white rounded-lg"
+                className="w-full absolute flex flex-col z-30 bg-neutral-900 border border-neutral-800 shadow-2xl max-h-40 overflow-y-auto rounded-none mt-1"
+                style={{ borderRadius: 0, display: "none" }}
               >
                 {fetchedProducts.map((ty, index) =>
-                  selectedProducts.some((item) => item._id === ty._id) ? (
-                    <p key={index} className="hidden">
-                      {ty.name}
-                    </p>
-                  ) : (
+                  selectedProducts.some((item) => item._id === ty._id) ? null : (
                     <p
                       key={index}
-                      onClick={() => {
-                        handleProductClick(ty);
-                      }}
-                      className={
-                        index == 0
-                          ? "p-2 text-sm flex items-center gap-2 border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                          : "p-2 text-sm flex items-center gap-2 border-t border-gray-300 hover:bg-blue-100/50 cursor-pointer capitalize"
-                      }
+                      onClick={() => handleProductClick(ty)}
+                      className="p-2.5 text-xs flex items-center gap-2 border-b border-neutral-800/60 hover:bg-neutral-800 cursor-pointer capitalize text-neutral-200 last:border-0"
                     >
                       <img
-                        className="h-8 object-cover min-w-8 rounded-full border border-gray-200"
+                        className="h-6 w-6 object-cover border border-neutral-700"
                         src={ty.imageLink}
+                        alt=""
                       />
                       <span>{ty.name}</span>
                     </p>
@@ -369,50 +381,63 @@ const AddCollection = ({ open, handleClose, handleUpload }) => {
               </div>
             </div>
           </div>
-          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-3 border-t border-neutral-800">
             <label
               htmlFor="image"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Thumbail
+              Thumbnail <span className="text-red-400">*</span>
             </label>
 
-            <div className="w-full relative px-5 gap-2 flex">
+            <div className="w-full relative flex items-center gap-3">
               <input
-                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
-                placeholder="Los Angeles"
+                className="hidden"
                 id="image"
                 type="file"
                 ref={thumbnail}
                 required={true}
+                accept="image/*"
                 onChange={handleThumbnailChange}
               />
               <div
                 onClick={handleThumbnailClick}
-                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+                className="h-16 w-16 cursor-pointer border border-dashed border-neutral-700 hover:border-white bg-neutral-950 flex flex-col items-center justify-center text-neutral-400 hover:text-white transition rounded-none"
+                style={{ borderRadius: 0 }}
+                title="Click to select thumbnail"
               >
                 <i className="ri-image-add-line text-2xl"></i>
               </div>
               <img
                 ref={preview}
-                className="w-24 outline-none border-none object-cover z-10 opacity-0 "
+                alt=""
+                className="w-20 h-16 object-cover border border-neutral-800 bg-neutral-950 opacity-0 transition-opacity rounded-none"
+                style={{ borderRadius: 0 }}
               />
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-4 border-t border-neutral-800 gap-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="px-5 py-2.5 border border-neutral-700 text-neutral-300 text-xs font-semibold hover:bg-neutral-800 transition uppercase tracking-wider rounded-none"
+              style={{ borderRadius: 0 }}
+            >
+              Cancel
+            </button>
             <button
               id="submit"
               type="submit"
-              className="px-4 py-2 relative rounded-md overflow-hidden text-sm font-semibold bg-black text-white cursor-pointer"
+              disabled={submitted}
+              className="px-6 py-2.5 relative text-xs font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 transition cursor-pointer disabled:opacity-50 rounded-none shadow"
+              style={{ borderRadius: 0 }}
             >
               Add Collection
-              {submitted ? (
-                <div className="h-full w-full absolute bg-black top-0 left-0 flex items-center justify-center ">
-                  <div className="loader h-5 w-5 border-x-2 border-x-white border-y-transparent border-y-2 rounded-full animate-spin"></div>
+              {submitted && (
+                <div className="h-full w-full absolute bg-black top-0 left-0 flex items-center justify-center">
+                  <div className="loader h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 </div>
-              ) : (
-                ""
               )}
             </button>
           </div>

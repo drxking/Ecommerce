@@ -17,21 +17,20 @@ const Footer = () => {
   }, [collection]);
 
   return (
-    <div className="bg-black  py-10 pt-20 text-white w-full">
-      <div className=" flex justify-around sm:flex-row flex-col gap-8 sm:gap-0 px-10">
-        <div className="left">
-          <div className="logo flex flex-col items-center">
-            <img
-              src="/tsabinz.png"
-              className="invert border rounded-full h-20 w-20 object-cover"
-              alt="Logo"
-            />
-            <p className="uppercase text-sm p-3">tsabinz.official</p>
-          </div>
+    <div className="bg-black px-10 md:pl-20  footer py-10 pt-20 text-white w-full ">
+      <h1 className="uppercase text-5xl w-full text-center pb-20">The One & the Best</h1>
+      <div className="grid lg:grid-cols-5 md:grid-cols-3 md:gap-3 gap-14">
+        
+        <div className="right text-xs flex flex-col uppercase ">
+          
+            <label htmlFor="email" className=" font-semibold  flex items-center justify-between md:pr-20 "><span className="underline underline-offset-8">Email</span> <i class="ri-arrow-right-long-line text-xl"></i></label>
+          
+          <input className="p-2 text-white bg-transparent  active:outline-none focus:outline-none" type="text" id="email" />
+          
         </div>
 
-        <div className="right text-xs uppercase">
-          <p className="text-gray-400 font-semibold pb-2">Get in Touch</p>
+        <div className="right text-xs uppercase ">
+          <p className=" font-semibold pb-4  underline underline-offset-8">Get in Touch</p>
           <ul className=" flex flex-col gap-2">
             <li className="hoverer">
               <Link>bussiness@tsabinz.com</Link>
@@ -43,7 +42,7 @@ const Footer = () => {
         </div>
 
         <div className="center text-xs uppercase">
-          <p className="text-gray-400 font-semibold pb-2">Collections</p>
+          <p className=" font-semibold pb-4  underline underline-offset-8">Collections</p>
 
           <div className=" flex flex-col gap-2">
             {link?.map((e, index) => (
@@ -57,9 +56,14 @@ const Footer = () => {
             ))}
           </div>
         </div>
+        <div className="right text-xs uppercase">
+          <p className=" font-semibold pb-4  underline underline-offset-8">Company</p>
+          <a href="#">TSabinz</a>
+        </div>
+
 
         <div className="right text-xs uppercase">
-          <p className="text-gray-400 font-semibold pb-2">Social</p>
+          <p className=" font-semibold pb-4  underline underline-offset-8">Social</p>
 
           <ul className=" flex flex-col gap-2">
             <li className="hoverer">
@@ -78,9 +82,9 @@ const Footer = () => {
           </ul>
         </div>
       </div>
-      <div className="md:px-20 px-5  mt-10">
+      <div className="  mt-10">
         <div className="w-full border-t border-gray-500 flex  justify-center py-1">
-          <p className=" text-xs">Copyright © tsabinz.official - 2025 | All Rights Reserved</p>
+          <p className=" text-xs text-center">Copyright © tsabinz.official - 2026 <br /> All Rights Reserved</p>
         </div>
       </div>
     </div>

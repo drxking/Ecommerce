@@ -5,33 +5,60 @@ import { useCollection } from "../components/CollectionProvider";
 import Footer from "../components/Footer";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-
+import axios from "axios";
+import Card from "../components/Card";
 
 const Home = () => {
   let collection = useCollection();
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
-  const [banners, setBanners] = useState([]);
   const [iSloaded, setISloaded] = useState(false);
+  const [homeConfig, setHomeConfig] = useState(null);
+  const [orderedCollections, setOrderedCollections] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
 
-  let loader = useRef(null)
+  let loader = useRef(null);
 
   useEffect(() => {
-    setBanners(
-      collection?.data?.map((e) => ({
-        bannerImageLink: e.bannerImageLink,
-        name: e.name,
-        id: e._id,
-      }))
-    );
-    collection?.data?.length > 0 ? setISloaded(true) : "";
-  }, [collection]);
+    const fetchHomeData = async () => {
+      try {
+        const [configRes, prodRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_BASE_URL}/home-config`),
+          axios.get(`${import.meta.env.VITE_BASE_URL}/products`),
+        ]);
+
+        if (configRes.data?.data) {
+          setHomeConfig(configRes.data.data);
+          if (configRes.data.data.orderedCollections?.length > 0) {
+            const sorted = configRes.data.data.orderedCollections
+              .filter((i) => i && i.collection)
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map((i) => i.collection);
+            setOrderedCollections(sorted);
+          } else {
+            // Fallback to all collections
+            const colsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/collections`);
+            if (Array.isArray(colsRes.data?.data)) {
+              setOrderedCollections(colsRes.data.data);
+            }
+          }
+        }
+
+        if (Array.isArray(prodRes.data)) {
+          setTopProducts(prodRes.data.slice(0, 6));
+        }
+      } catch (err) {
+        console.error("Failed to load home data:", err);
+      }
+    };
+    fetchHomeData();
+  }, []);
 
   useGSAP(() => {
     if (iSloaded) {
-      gsap.to(loader.current,{
-        opacity:0,
-        duration:0.7
-      })
+      gsap.to(loader.current, {
+        opacity: 0,
+        duration: 0.7,
+      });
     }
   }, [iSloaded]);
 
@@ -44,71 +71,177 @@ const Home = () => {
       }
     };
 
-    // Add the scroll event listener
     window.addEventListener("scroll", handleScroll);
-
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
-    <div>
-      <div ref={loader} className="loader pointer-events-none bg-white fixed z-[11111111] flex items-center justify-center h-screen w-screen">
-        <img
-          src="tsabinz.png"
-          alt="Logo"
-          className="h-24 w-3h-24  blinker"
-        />
-      </div>
+    <div className="bg-[#0a0a0a] text-white overflow-x-hidden">
       <Navbar scrolledLimit={IsScrolled100px} solid={true} />
-      <div className="hero relative w-full flex flex-col items-center justify-center text-white uppercase  h-screen">
-        <div
-          className={`w-full hero-anim   absolute top-0 left-0 h-full flex items-center justify-center`}
-        >
-          <img
-            src="https://res.cloudinary.com/dgcpqppcd/image/upload/v1737900334/Firefly_20250126194747_1_rkka2v.png"
-            className="w-full h-full object-cover relative top-0  left-0"
+
+      {/* 1. Hero Banner Video at Top */}
+      <div className="hero relative w-screen h-screen flex flex-col items-center justify-center text-white uppercase overflow-hidden">
+        <div className="w-full hero-anim overflow-hidden absolute top-0 left-0 h-full flex items-center justify-center">
+          <video
+            key={homeConfig?.banner?.videoLink || "/hero.webm"}
+            src={homeConfig?.banner?.videoLink || "/hero.webm"}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover relative top-0 left-0"
           />
-          <div className="absolute flex flex-col items-center">
-            <h2 className=" font-[panchang] text-3xl text-center md:text-5xl">
-              {banners ? banners[0]?.name : ""}
+
+          {/* Overlay Title & Redirect Link */}
+          {(homeConfig?.banner?.title || (homeConfig?.banner?.redirectLink && homeConfig?.banner?.redirectLink !== "/")) && (
+            <div className="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center text-center p-4">
+              {homeConfig?.banner?.title && (
+                <h1 className="text-white font-[panchang] font-black text-3xl sm:text-5xl md:text-6xl tracking-wider uppercase drop-shadow-lg mb-4">
+                  {homeConfig.banner.title}
+                </h1>
+              )}
+              {homeConfig?.banner?.redirectLink && homeConfig.banner.redirectLink !== "/" && (
+                <Link
+                  to={homeConfig.banner.redirectLink}
+                  className="mt-2 bg-white text-black hover:bg-neutral-200 font-semibold px-7 py-3 text-xs md:text-sm tracking-widest uppercase transition-all duration-300 shadow-lg rounded-none"
+                  style={{ borderRadius: 0 }}
+                >
+                  Explore Collection
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 2. Order-wise Collections (h-screen w-screen, title at bottom center, description, and non-rounded Explore button) */}
+      {orderedCollections.map((col, idx) => (
+        <div
+          key={col._id || idx}
+          className="relative w-screen h-screen overflow-hidden flex flex-col justify-end items-center"
+        >
+          {col.thumbnailImageLink ? (
+            <img
+              src={col.thumbnailImageLink}
+              alt={col.name}
+              className="absolute inset-0 w-full h-full object-cover brightness-[75%]"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-neutral-950 flex items-center justify-center text-neutral-600">
+              No image
+            </div>
+          )}
+
+          {/* Gradient overlay for bottom readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent pointer-events-none" />
+
+          {/* Bottom Center Content */}
+          <div className="relative z-10 flex flex-col items-center text-center text-white pb-14 md:pb-20 px-4 max-w-3xl">
+            <h2 className="text-white font-[panchang] font-black text-3xl sm:text-5xl md:text-6xl tracking-wider uppercase leading-tight">
+              {col.name}
             </h2>
+            {col.description && (
+              <p className="text-white/85 text-sm md:text-base mt-3 max-w-xl font-light tracking-wide">
+                {col.description}
+              </p>
+            )}
             <Link
-              to={`/collections/${banners ? banners[0]?.id : ""}`}
-              className="capitalize text-center border-b leading-5 text-sm"
+              to={`/collections/${col._id}`}
+              className="mt-6 bg-white text-black hover:bg-neutral-200 font-semibold px-8 py-3.5 text-xs md:text-sm tracking-widest uppercase transition-all duration-300 rounded-none shadow-xl"
+              style={{ borderRadius: 0 }}
             >
-              Shop
+              Explore Collection
             </Link>
           </div>
         </div>
-      </div>
- 
-      <div className="w-full  py-3 flex-1  justify-start md:px-5 gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3">
-        {collection?.data?.map((e, index) => (
-          <Link
-            to={`/collections/${e._id}`}
-            key={index}
-            className={
-              index == 2
-                ? "h-full relative  object-cover sm:col-span-2 group md:col-span-1 overflow-hidden"
-                : "h-full relative  sm:col-span-1 object-cover group overflow-hidden"
-            }
-          >
-            <img
-              className="h-full  sm:w-full w-full brightness-[80%] group-hover:scale-105 object-cover duration-500"
-              src={e.thumbnailImageLink}
-              alt=""
-            />
-            <div className="absolute h-full w-full  top-0 flex items-center justify-center">
-              <h2 className="text-white font-[panchang] text-center text-3xl md:text-[2.5vw]">
-                {e.name}
+      ))}
+
+      {/* 3. Top Three Collections Section (Featured Collection) */}
+      {collection?.data?.length > 0 && (
+        <section className="w-full bg-[#0a0a0a] pt-16 pb-6 border-t border-neutral-800">
+          <div className="flex items-center justify-between px-4 md:px-12 mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-[panchang] font-bold uppercase tracking-tight text-white">
+                Featured Collection
               </h2>
+              <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mt-1">
+                Curated Selection
+              </p>
             </div>
-          </Link>
-        ))}
-      </div>
+            <Link
+              to="/collections"
+              className="text-xs md:text-sm font-semibold text-neutral-300 hover:text-white flex items-center gap-1 uppercase tracking-wider rounded-none transition"
+              style={{ borderRadius: 0 }}
+            >
+              View All Collections <i className="ri-arrow-right-line"></i>
+            </Link>
+          </div>
+
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            {collection.data.map((e, index) => (
+              <Link
+                to={`/collections/${e._id}`}
+                key={index}
+                className={
+                  index === 2
+                    ? "h-full relative object-cover sm:col-span-2 group md:col-span-1 overflow-hidden"
+                    : "h-full relative sm:col-span-1 object-cover group overflow-hidden"
+                }
+              >
+                <img
+                  className="h-full sm:w-full w-full brightness-[75%] group-hover:scale-105 object-cover duration-500"
+                  src={e.thumbnailImageLink}
+                  alt=""
+                />
+                <div className="absolute h-full w-full top-0 flex flex-col items-center justify-center p-4">
+                  <h2 className="text-white font-[panchang] hoverer text-center text-3xl md:text-[2.5vw]">
+                    {e.name}
+                  </h2>
+                  {e.description && (
+                    <p className="text-white/80 text-xs mt-2 text-center max-w-xs line-clamp-2">
+                      {e.description}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 4. Top Products Section (Max 6, border radius: none) */}
+      {topProducts.length > 0 && (
+        <section className="w-full px-4 md:px-24 py-16 bg-[#0a0a0a] border-t border-neutral-800">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-[panchang] font-bold uppercase tracking-tight text-white">
+                Top Products
+              </h2>
+              <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mt-1">
+                Featured Highlights
+              </p>
+            </div>
+            <Link
+              to="/products"
+              className="text-xs md:text-sm font-semibold text-neutral-300 hover:text-white flex items-center gap-1 uppercase tracking-wider rounded-none transition"
+              style={{ borderRadius: 0 }}
+            >
+              View All Products <i className="ri-arrow-right-line"></i>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-2">
+            {topProducts.slice(0, 4).map((product) => (
+              <Card key={product._id} {...product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 5. Footer */}
       <Footer />
     </div>
   );

@@ -1,38 +1,132 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Card = ({ name, price, imageLink, _id, description, isAdmin, handleRemove }) => {
-  let spinner = useRef(null);
-  let i = useRef(null);
-  return (
-    <div className="relative group">
-      {
-        (isAdmin) ? (
-          <button onClick={(e) => {
-            handleRemove(e, _id)
-            
+const Card = ({
+  name,
+  price,
+  comparedPrice,
+  imageLink,
+  _id,
+  description,
+  isAdmin,
+  handleRemove,
+  onAddToCart,
+}) => {
+  const [added, setAdded] = useState(false);
 
-          }} title="Remove from collection" className="absolute items-center md:group-hover:opacity-100 md:group-hover:pointer-events-auto  md:opacity-0 duration-200 md:pointer-events-none flex justify-center  right-4 top-2 bg-red-500 p-2 text-white rounded-lg text-md ">
-            <i className="ri-delete-bin-line leading-none"></i>
-            <div className="spinner h-4 w-4 absolute border-2 animate-spin hidden rounded-full border-t-white border-r-transparent border-l-transparent border-b-white"></div>
-          </button>
-        ) : ""
+  const handleAddToCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onAddToCart) {
+      onAddToCart({ _id, name, price, imageLink });
+    } else {
+      try {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const existingIdx = cart.findIndex((item) => item._id === _id);
+        if (existingIdx > -1) {
+          cart[existingIdx].quantity = (cart[existingIdx].quantity || 1) + 1;
+        } else {
+          cart.push({ _id, name, price, imageLink, quantity: 1 });
+        }
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("cartUpdated"));
+      } catch (err) {
+        console.error(err);
       }
-      <Link to={`/products/${_id}`}>
-        <img
-          src={imageLink}
-          className="sm:h-72 h-[120vw] sm:w-56 w-[100vw] object-cover"
-          alt={name}
-          loading="lazy"
-        />
-        <h2 className="text-lg font-medium mt-2 sm:w-56 sm:truncate sm:leading-normal leading-none">{name}</h2>
-        <p className=" sm:text-xs text-base text-gray-500 font-medium tracking-wide">
-          {description}
-        </p>
-        <p className="sm:font-medium font-semibold text-xl sm:text-lg">
-          ${price}
-        </p>
+    }
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
+  };
+
+  const formattedPrice =
+    price !== undefined && price !== null
+      ? typeof price === "number"
+        ? `₹ ${price.toLocaleString()}`
+        : `₹ ${price}`
+      : "";
+
+  const formattedCompared =
+    comparedPrice && Number(comparedPrice) > Number(price)
+      ? `₹ ${Number(comparedPrice).toLocaleString()}`
+      : null;
+
+  return (
+    <div className="group relative flex flex-col items-center bg-black text-white w-full rounded-none">
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleRemove(e, _id);
+          }}
+          title="Remove from collection"
+          className="absolute z-20 top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1.5 shadow-md flex items-center justify-center transition-all rounded-none"
+          style={{ borderRadius: 0 }}
+        >
+          <i className="ri-delete-bin-line leading-none text-xs"></i>
+        </button>
+      )}
+
+      {/* Product Image Frame */}
+      <Link to={`/products/${_id}`} className="block w-full">
+        <div
+          className="w-full aspect-square overflow-hidden bg-neutral-950 border border-neutral-800 relative rounded-none flex items-center justify-center"
+          style={{ borderRadius: 0 }}
+        >
+          {imageLink ? (
+            <img
+              src={imageLink}
+              alt={name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 rounded-none brightness-95 group-hover:brightness-105"
+              style={{ borderRadius: 0 }}
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-xs text-neutral-500 font-light">
+              No Image
+            </div>
+          )}
+        </div>
       </Link>
+
+      {/* Centered Product Info Below Image */}
+      <div className="w-full pt-4 pb-2 px-1 flex flex-col items-center text-center">
+        {/* Product Title */}
+        <Link to={`/products/${_id}`} className="block w-full">
+          <h3 className="text-white font-[panchang] uppercase tracking-wider text-xs md:text-sm font-semibold hover:text-neutral-300 transition-colors line-clamp-2 leading-snug">
+            {name}
+          </h3>
+        </Link>
+
+        {/* Price display with optional crossed-out comparison price */}
+        <div className="mt-1.5 flex items-center justify-center gap-2 text-xs md:text-sm font-medium tracking-wide">
+          <span className="text-white">{formattedPrice}</span>
+          {formattedCompared && (
+            <span className="line-through text-neutral-500 text-xs font-normal">
+              {formattedCompared}
+            </span>
+          )}
+        </div>
+
+        {/* Centered "Add To Cart" Button */}
+        {!isAdmin && (
+          <button
+            type="button"
+            onClick={handleAddToCartClick}
+            className="mt-3.5 bg-white text-black hover:bg-neutral-200 text-xs font-semibold px-5 py-2 uppercase tracking-wider transition-colors shadow rounded-none"
+            style={{ borderRadius: 0 }}
+          >
+            {added ? (
+              <span className="flex items-center gap-1">
+                <i className="ri-check-line"></i> Added
+              </span>
+            ) : (
+              "Add To Cart"
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 };

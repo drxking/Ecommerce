@@ -7,6 +7,9 @@ let collectionSchema = mongoose.Schema({
         minLength: [2, " name must be at least 2 characters long"],
         maxLength: [100, " name must be less than 100 characters"]
     },
+    description: {
+        type: String,
+    },
     type: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "type"
@@ -18,6 +21,6 @@ let collectionSchema = mongoose.Schema({
     thumbnailImageLink: {
         type: String,
     }
-})
+});
 
 module.exports = mongoose.model("collect", collectionSchema);

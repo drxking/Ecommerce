@@ -13,19 +13,43 @@
   src: url("/Coconat-Demi.otf");
 }
 
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: satoshi;
+  font-family: panchang;
 }
+
+html {
+  background-color: #0c0c0c;
+  color-scheme: dark;
+}
+
+body {
+  background-color: #0c0c0c;
+  color: #f3f4f6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
 body::-webkit-scrollbar {
   display: none;
+}
+
+::selection {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.footer *{
+  font-family: panchang;
 }
 
 .no-scroller::-webkit-scrollbar {
   display: none;
 }
+
 
 @keyframes gradientLoading {
   0% {

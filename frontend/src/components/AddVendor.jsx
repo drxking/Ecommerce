@@ -93,137 +93,170 @@ const AddVendor = ({ open, handleClose, handleUpload }) => {
   return (
     <div
       ref={popup}
-      className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen backdrop-brightness-50 z-40 px-2 flex items-center justify-center"
+      className="fixed duration-200 opacity-0 pointer-events-none h-screen w-screen bg-black/80 backdrop-blur-md z-50 px-4 flex items-center justify-center"
     >
-    
       <div
         onClick={handleClose}
-        className="close  -z-10  h-full w-full absolute"
+        className="close -z-10 h-full w-full absolute cursor-pointer"
       ></div>
-      <div className="post w-[450px] rounded-3xl bg-white p-8  text-black">
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-xl">Add Vendor</h2>
-          <div className="button cursor-pointer">
-            <i
-              onClick={handleClose}
-              className="ri-close-line text-2xl leading-none"
-            ></i>
-          </div>
+      <div
+        className="post w-full max-w-lg bg-neutral-900 border border-neutral-800 p-6 md:p-8 text-white shadow-2xl rounded-none"
+        style={{ borderRadius: 0 }}
+      >
+        <div className="flex justify-between items-center border-b border-neutral-800 pb-4">
+          <h2 className="font-bold text-lg md:text-xl uppercase tracking-wider font-[panchang]">
+            Add Vendor
+          </h2>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition"
+          >
+            <i className="ri-close-line text-2xl leading-none"></i>
+          </button>
         </div>
-        <form onSubmit={handleSubmit} className="pt-5">
-          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-950/60 border border-red-850 text-red-300 text-xs flex items-center gap-2">
+            <i className="ri-error-warning-line text-sm text-red-400"></i>
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="pt-4 space-y-4">
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="name"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Name
+              Name <span className="text-red-400">*</span>
             </label>
             <input
               ref={name}
-              className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-              placeholder="Nike"
+              required
+              className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+              placeholder="e.g. Nike, Rick Owens"
               id="name"
               type="text"
+              style={{ borderRadius: 0 }}
             />
           </div>
 
-          <div className="name flex  gap-6 pt-3 border-t border-gray-200 py-2">
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="email"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Email Address
+              Email Address <span className="text-red-400">*</span>
             </label>
             <input
               required={true}
               ref={email}
-              className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-              placeholder="example@gmail.com"
+              className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+              placeholder="vendor@company.com"
               id="email"
               type="email"
+              style={{ borderRadius: 0 }}
             />
           </div>
-          <div className="name flex  gap-6 pt-3 border-t border-gray-200 py-2">
+
+          <div className="name flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="phone"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300 pt-1"
             >
-              Phone
+              Phone <span className="text-red-400">*</span>
             </label>
             <div className="w-full">
               <input
                 required={true}
                 ref={phone}
-                className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-                placeholder="+977 9876543210"
+                className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+                placeholder="+1 555-0199 or +977..."
                 id="phone"
                 type="text"
+                style={{ borderRadius: 0 }}
               />
-              <p className="text-gray-600 text-xs p-1">
-                *Must Include Country Code i.e +977
+              <p className="text-neutral-500 text-[10px] mt-1">
+                *Include international dialing code
               </p>
             </div>
           </div>
-          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t border-neutral-800 pt-3">
             <label
               htmlFor="address"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Address
+              Address <span className="text-red-400">*</span>
             </label>
             <input
               required={true}
               ref={address}
-              className="p-2 px-2 border border-gray-300 w-full focus:outline-none rounded-lg text-sm"
-              placeholder="Los Angeles"
+              className="p-2.5 border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-500 w-full focus:outline-none focus:border-white text-xs rounded-none transition"
+              placeholder="e.g. Los Angeles, CA"
               id="address"
               type="text"
+              style={{ borderRadius: 0 }}
             />
           </div>
-          <div className="name flex gap-6 pt-3 border-t border-gray-200 py-2">
+
+          <div className="name flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-3 border-t border-neutral-800">
             <label
               htmlFor="image"
-              className="text-sm w-[40%] font-semibold text-gray-800"
+              className="text-xs uppercase tracking-wider w-full sm:w-[35%] font-semibold text-neutral-300"
             >
-              Photo
+              Photo <span className="text-red-400">*</span>
             </label>
 
-            <div className="w-full px-5">
+            <div className="w-full relative flex items-center gap-3">
               <input
-                className="p-2 px-2 border h-16 w-16 opacity-0 absolute border-gray-300  focus:outline-none rounded-lg text-sm"
-                placeholder="Los Angeles"
+                className="hidden"
                 id="image"
                 type="file"
                 ref={image}
                 required={true}
                 onChange={handleImageChange}
-                accept="image/jpeg, image/png, image/jpg"
+                accept="image/jpeg, image/png, image/jpg, image/webp"
               />
               <div
                 onClick={handleImageClick}
-                className="h-16 relative w-16 overflow-hidden rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+                className="h-16 w-16 cursor-pointer border border-dashed border-neutral-700 hover:border-white bg-neutral-950 flex flex-col items-center justify-center text-neutral-400 hover:text-white transition rounded-none"
+                style={{ borderRadius: 0 }}
+                title="Select vendor logo"
               >
                 <i className="ri-image-add-line text-2xl"></i>
-                <img
-                  ref={preview}
-                  className="h-full w-full object-cover absolute z-10 opacity-0"
-                />
               </div>
+              <img
+                ref={preview}
+                alt=""
+                className="w-20 h-16 object-cover border border-neutral-800 bg-neutral-950 opacity-0 transition-opacity rounded-none"
+                style={{ borderRadius: 0 }}
+              />
             </div>
           </div>
-          <div className="flex justify-end">
+
+          <div className="flex justify-end pt-4 border-t border-neutral-800 gap-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="px-5 py-2.5 border border-neutral-700 text-neutral-300 text-xs font-semibold hover:bg-neutral-800 transition uppercase tracking-wider rounded-none"
+              style={{ borderRadius: 0 }}
+            >
+              Cancel
+            </button>
             <button
               id="submit"
               type="submit"
-              className="px-4 py-2 relative rounded-md overflow-hidden text-sm font-semibold bg-black text-white cursor-pointer"
+              disabled={submitted}
+              className="px-6 py-2.5 relative text-xs font-bold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 transition cursor-pointer disabled:opacity-50 rounded-none shadow"
+              style={{ borderRadius: 0 }}
             >
               Add Vendor
-              {submitted ? (
-                <div className="h-full w-full absolute bg-black top-0 left-0 flex items-center justify-center ">
-                  <div className="loader h-5 w-5 border-x-2 border-x-white border-y-transparent border-y-2 rounded-full animate-spin"></div>
+              {submitted && (
+                <div className="h-full w-full absolute bg-black top-0 left-0 flex items-center justify-center">
+                  <div className="loader h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 </div>
-              ) : (
-                ""
               )}
             </button>
           </div>

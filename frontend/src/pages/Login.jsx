@@ -69,84 +69,97 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center p-4 sm:px-14 relative h-screen justify-center md:gap-6 gap-2  bg-[#fff] text-black">
+      <div className="flex flex-col md:flex-row items-center p-4 sm:px-14 relative min-h-screen justify-center md:gap-8 gap-4 bg-[#0a0a0a] text-white">
         <div
           ref={blink}
           className="h-screen w-screen capitalize backdrop-blur-xl backdrop-brightness-50 blink opacity-0 text-center text-white md:text-4xl lg:text-5xl text-2xl pointer-events-none fixed z-30 flex items-center justify-center font-[panchang] font-semibold"
         >
           {responsed?.data?.message}
         </div>
-        <div className="md:w-[55%] relative h-full bg-no-repeat overflow-hidden text-white  left  rounded-3xl p-4">
+        <div
+          className="md:w-[55%] relative h-[450px] md:h-[600px] bg-no-repeat overflow-hidden text-white left border border-neutral-800 p-6 rounded-none shadow-2xl"
+          style={{ borderRadius: 0 }}
+        >
           <img
-            className="h-full w-full absolute top-0 left-0 brightness-[40%] object-cover"
+            className="h-full w-full absolute top-0 left-0 brightness-[35%] object-cover"
             src="https://turnedninja.com/cdn/shop/files/5_8e47c863-fe27-4c86-88e8-c03b2e589206_1024x1024.jpg?v=1685689430"
             alt=""
           />
-          <div className=" z-10 relative h-full w-full flex flex-col  justify-between ">
-            <div className="top flex  justify-between   items-center">
+          <div className="z-10 relative h-full w-full flex flex-col justify-between">
+            <div className="top flex justify-between items-center">
               <Logo invert={true} />
               <Link
                 to="/"
-                className="p-2 bg-white/20 rounded-full  px-4 md:px-6 text-sm flex items-center gap-1"
+                className="p-2.5 bg-neutral-900/80 border border-neutral-700 hover:bg-white hover:text-black transition px-4 md:px-5 text-xs uppercase tracking-wider flex items-center gap-1.5 rounded-none font-semibold"
+                style={{ borderRadius: 0 }}
               >
-                <i className="ri-arrow-left-line text-xl"></i> Back to website
+                <i className="ri-arrow-left-line text-base"></i> Back to website
               </Link>
             </div>
-            <div className="bottom  justify-between flex flex-col items-center">
-              <p className="font-bold text-[8vw] leading-none md:text-4xl font-[panchang] uppercase text-center">
-                Wear Treadings
+            <div className="bottom justify-between flex flex-col items-center text-center">
+              <p className="font-black text-2xl sm:text-3xl md:text-4xl font-[panchang] uppercase tracking-wider text-center text-white drop-shadow-md">
+                Wear Trendings
               </p>
-              <p className="font-light font-[panchang] text-xl">Be Unique</p>
+              <p className="font-light font-[panchang] text-sm sm:text-base text-neutral-300 uppercase tracking-widest mt-1">
+                Be Unique
+              </p>
             </div>
           </div>
         </div>
-        <div className="md:w-[45%] h-full right pt-6  md:p-14">
-          <div>
-            <h2 className="text-4xl font-semibold font-[panchang]">
-              Welcome Back!
+        <div className="md:w-[45%] w-full right pt-2 md:p-10 flex flex-col justify-center max-w-md">
+          <div className="bg-neutral-900/90 border border-neutral-800 p-8 shadow-2xl rounded-none" style={{ borderRadius: 0 }}>
+            <h2 className="text-2xl sm:text-3xl font-black font-[panchang] uppercase tracking-wider text-white">
+              Welcome Back
             </h2>
-            <p className="text-sm mt-4">
+            <p className="text-xs text-neutral-400 mt-2">
               Don't have an account?{" "}
-              <Link className="text-blue-700 underline" to="/signup">
-                SignUp
+              <Link className="text-white font-semibold underline underline-offset-4 hover:text-neutral-300 transition" to="/signup">
+                Sign Up
               </Link>
             </p>
             <form
               onSubmit={handleSubmit}
-              className="w-full flex flex-col gap-4 mt-8"
+              className="w-full flex flex-col gap-4 mt-6"
             >
               <div>
+                <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1 tracking-wider">
+                  Email
+                </label>
                 <input
                   required={true}
                   ref={mail}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#fff] border text-sm rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-neutral-600 bg-neutral-950 border border-neutral-800 text-white text-xs rounded-none focus:border-white transition"
                   type="email"
                   placeholder="snowjon@gmail.com"
+                  style={{ borderRadius: 0 }}
                 />
               </div>
               <div>
+                <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1 tracking-wider">
+                  Password
+                </label>
                 <input
                   required={true}
                   ref={pass}
-                  className="w-full focus:outline-none p-3 placeholder:text-gray-500 bg-[#fff] border text-sm rounded-lg"
+                  className="w-full focus:outline-none p-3 placeholder:text-neutral-600 bg-neutral-950 border border-neutral-800 text-white text-xs rounded-none focus:border-white transition"
                   type="password"
-                  placeholder="Enter your passoword"
+                  placeholder="Enter your password"
+                  style={{ borderRadius: 0 }}
                 />
               </div>
               <button
                 type="submit"
-                className="w-full p-3 bg-[#000] rounded-lg relative flex items-center justify-center"
+                disabled={submitted}
+                className="w-full p-3.5 bg-white text-black font-bold uppercase tracking-wider text-xs rounded-none hover:bg-neutral-200 transition relative flex items-center justify-center shadow mt-2 disabled:opacity-50"
+                style={{ borderRadius: 0 }}
               >
                 {submitted ? (
                   <>
-                    <div className="loader h-8 w-8 animate-spin absolute  rounded-full border-4 border-t-white border-b-white border-r-transparent border-l-transparent"></div>
-                    <p className="opacity-0">Create account</p>
+                    <div className="loader h-5 w-5 animate-spin border-2 border-black border-t-transparent rounded-full"></div>
+                    <span className="opacity-0">Signing in...</span>
                   </>
                 ) : (
-                  <>
-                    <div className="loader opacity-0 h-10 w-10 text-white text-sm animate-spin absolute  rounded-full border-4 border-t-black border-b-black border-r-transparent border-l-transparent"></div>
-                    <p className="text-white">Login </p>
-                  </>
+                  <span>Sign In</span>
                 )}
               </button>
             </form>

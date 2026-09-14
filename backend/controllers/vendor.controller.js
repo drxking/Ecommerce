@@ -1,23 +1,12 @@
-require("dotenv").config()
-let { vendorModel } = require("../models/vendor.model")
-const axios = require("axios");
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-
-
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+require("dotenv").config();
+let { vendorModel } = require("../models/vendor.model");
+const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 module.exports.addVendor = async (req, res) => {
     try {
         let { name, email, phone, address } = req.body;
         if (!name || !email || !phone || !address) {
+            cleanupUploadedFiles(req.file);
             return res.status(400).json({
                 "message": "Every Field is needed",
                 "status": "failed"
@@ -25,34 +14,15 @@ module.exports.addVendor = async (req, res) => {
         }
 
         const file = req.file;
-        if (!file) return res.status(400).json({ "message": "No file uploaded", "status": "failed" });
+        if (!file) {
+            return res.status(400).json({ "message": "No file uploaded", "status": "failed" });
+        }
 
-        console.log(file);
-
-        // Upload to Cloudinary using upload_stream
-        const uploadStream = () => {
-            return new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: "vendors", use_filename: true },
-                    (error, result) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result);
-                        }
-                    }
-                );
-                stream.end(file.buffer);
-            });
-        };
-
-        const result = await uploadStream();
-
-        console.log(result);
+        const imageLink = getFileUrl(req, `/uploads/vendors/${file.filename}`);
 
         let vendor = await vendorModel.create({
             name,
-            imageLink: result.secure_url,
+            imageLink,
             contactEmail: email,
             contactPhone: phone,
             address
@@ -64,47 +34,81 @@ module.exports.addVendor = async (req, res) => {
             "status": "success"
         });
     } catch (err) {
+        cleanupUploadedFiles(req.file);
+        console.error("Error adding vendor:", err);
         res.status(500).json({
             "message": "Something Went Wrong",
-            "status": "failed"
+            "status": "failed",
+            "error": err.message
         });
-        console.log(err);
     }
 };
 
 module.exports.getVendors = async (req, res) => {
     try {
-        let vendors = await vendorModel.find()
+        let vendors = await vendorModel.find();
         res.json({
             "message": "All vendor fetched successfully",
             "data": vendors,
             "status": "success"
-        })
-    } catch (err) {--
-        console.log(err)
+        });
+    } catch (err) {
+        console.error("Error fetching vendors:", err);
+        res.status(500).json({
+            "message": "Failed to fetch vendors",
+            "status": "failed"
+        });
     }
-}
+};
 
 module.exports.updateVendor = async (req, res) => {
     try {
         let { name, email, phone, address } = req.body;
-        let vendor = await vendorModel.findOneAndUpdate({ _id: req.params.id }, {
-            $set: {
-                name,
-                contactEmail: email,
-                contactPhone: phone,
-                address
-            }
-        }, { new: true })
+        const updateData = {};
+
+        if (name) updateData.name = name;
+        if (email) updateData.contactEmail = email;
+        if (phone) updateData.contactPhone = phone;
+        if (address) updateData.address = address;
+
+        if (req.file) {
+            updateData.imageLink = getFileUrl(req, `/uploads/vendors/${req.file.filename}`);
+        }
+
+        const oldVendor = await vendorModel.findById(req.params.id);
+        if (!oldVendor) {
+            cleanupUploadedFiles(req.file);
+            return res.status(404).json({
+                "message": "Vendor not found",
+                "status": "failed"
+            });
+        }
+
+        let vendor = await vendorModel.findByIdAndUpdate(
+            req.params.id,
+            { $set: updateData },
+            { new: true }
+        );
+
+        // If new image was uploaded, delete the old image
+        if (req.file && oldVendor.imageLink) {
+            deleteLocalFile(oldVendor.imageLink);
+        }
+
         res.json({
             "message": "Vendor Updated Successfully",
             "data": vendor,
             "status": "success"
-        })
+        });
     } catch (err) {
-        console.log(err)
+        cleanupUploadedFiles(req.file);
+        console.error("Error updating vendor:", err);
+        res.status(500).json({
+            "message": "Something went wrong",
+            "status": "failed"
+        });
     }
-}
+};
 
 module.exports.deleteVendor = async (req, res) => {
     try {
@@ -119,11 +123,10 @@ module.exports.deleteVendor = async (req, res) => {
             });
         }
 
-        let imageUrl = vendor.imageLink;
-        let publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID from URL
-
-        // Delete from Cloudinary
-        await cloudinary.uploader.destroy(`vendors/${publicId}`);
+        // Delete from local storage
+        if (vendor.imageLink) {
+            deleteLocalFile(vendor.imageLink);
+        }
 
         res.json({
             "message": `${vendor.name} deleted successfully`,
@@ -131,10 +134,10 @@ module.exports.deleteVendor = async (req, res) => {
             "status": "success"
         });
     } catch (err) {
+        console.error("Error deleting vendor:", err);
         res.status(500).json({
             "message": "Something went wrong",
             "status": "failed"
         });
-        console.log(err);
     }
 };

@@ -102,246 +102,198 @@ const Vendors = () => {
   }, [rerender]);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#0a0a0a] text-white pb-20">
       <AddVendor
         handleClose={handleClose}
         handleUpload={handleUpload}
         open={open}
       />
       <AdminNav />
-      <h2 className="font-semibold text-xl md:text-2xl font-[panchang]  uppercase pl-3 md:px-10 py-4">
-        Your Vendors
-      </h2>
-      <div className="w-full overflow-scroll no-scroller">
-        <table className="flex  flex-col w-full px-2 md:px-10 pb-10 min-w-[1000px]">
-          <thead className=" text-xs   py-0">
-            <tr className="flex text-[#9fa0a0]">
-              <th className="w-[10%]  border-b  font-medium py-2 text-start flex pl-4 rounded-tl-3xl  bg-gray-200/50 items-center">
-                Image
-              </th>
-              <th className="w-[15%]  border-b  font-medium py-2 text-start flex  bg-gray-200/50 items-center">
-                Vendor Name
-              </th>
-              <th className="w-[18%]   border-b font-medium py-2 text-start flex  bg-gray-200/50 items-center">
-                Email
-              </th>
-              <th className="w-[18%]  border-b font-medium py-2 text-start flex  bg-gray-200/50 items-center">
-                Phone
-              </th>
-              <th className="w-[18%]  border-b font-medium py-2 text-start flex  bg-gray-200/50 items-center">
-                Address
-              </th>
-              <th className="w-[5%]  border-b font-medium py-2 text-start flex items-center bg-gray-200/50 rounded-tr-3xl ">
-                Edit
-              </th>
-              <th className="w-[16%] relative font-medium py-2 px-2 text-start flex items-center  bg-gray-200/50 justify-center">
-                <div className="h-full w-full absolute bg-white rounded-bl-3xl"></div>
-                <button
-                  onClick={handleOpen}
-                  className="z-20  text-white relative font-semibold overflow-hidden flex-1 py-2 rounded-full "
-                >
-                  <img
-                    src="/mask2.webp"
-                    className="w-full h-full brightness-[85%]  -z-10 absolute top-0 left-0"
-                  />
-                  Add Vendor
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="w-full  rounded-tr-3xl rounded-b-3xl bg-gray-200/50  ">
-            {data?.map((items, index) => (
-              <React.Fragment key={items.name}>
-                <tr
-                  key={items.name}
-                  className={
-                    index == data.length - 1
-                      ? "text-xs inline-block align-middle pb-4  px-2 py-1 w-full"
-                      : "  text-xs inline-block align-middle   px-2 py-1 w-full"
-                  }
-                >
-                  <td className="inline-block w-[10%] pl-3  font-medium text-start">
-                    <img
-                      src={items.imageLink}
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
-                  </td>
-                  <td className="inline-block w-[15%] truncate  font-medium text-start">
-                    {items.name}
-                  </td>
-                  <td className="inline-block w-[18%] max-w-[18%] truncate  overflow-scroll no-scroller font-medium text-start">
-                    {items.contactEmail}
-                  </td>
-                  <td className="inline-block w-[18%] truncate  font-medium text-start">
-                    {items.contactPhone}
-                  </td>
-                  <td className="inline-block w-[18%] truncate  font-medium text-start">
-                    {items.address}
-                  </td>
-                  <td className="inline-block w-[8%]  font-medium text-start">
-                    <i
-                      onClick={() => handleDropOpen(index)}
-                      className={`ri-quill-pen-line  p-2 text-xs cursor-pointer rounded-full bg-black text-white`}
-                    ></i>
-                  </td>
-                  <td className="inline-block w-[10%] bg-gray-300  font-medium text-start"></td>
-                </tr>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-5 mb-6 gap-4">
+          <div>
+            <h2 className="font-bold text-xl md:text-2xl font-[panchang] uppercase tracking-wider text-white">
+              Vendor Directory
+            </h2>
+            <p className="text-neutral-400 text-xs mt-1">
+              Manage authorized suppliers, partner brands, and manufacturing contacts
+            </p>
+          </div>
+          <button
+            onClick={handleOpen}
+            className="inline-flex items-center gap-2 bg-white text-black hover:bg-neutral-200 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-none shadow transition"
+            style={{ borderRadius: 0 }}
+          >
+            <i className="ri-user-add-line text-sm"></i> Add Vendor
+          </button>
+        </div>
 
-                <tr
-                  id={`drop-${index}`}
-                  className={
-                    index === data.length - 1
-                      ? `text-xs   hidden  py-4 pt-1 overflow-hidden w-full align-bottom `
-                      : `text-xs   hidden  py-4  overflow-hidden w-full align-bottom border-b border-gray-200 `
-                  }
-                >
-                  <td className="inline-block w-[10%] pl-6   font-medium text-start">
-                    <p className="font-semibold pb-3 font-[panchang]">Edit </p>
-                  </td>
-                  <td className="inline-block w-[15%]  font-medium text-start">
-                    <div className="name  gap-6   pr-4">
-                      <label
-                        htmlFor={`name-${index}`}
-                        className="text-xs w-[40%] font-semibold text-gray-800"
-                      >
-                        Name
-                      </label>
-                      <input
-                        id={`name-${index}`}
-                        className="p-2 px-2 bg-white  w-full focus:outline-none rounded-lg text-xs"
-                        placeholder="Nike"
-                        type="text"
-                        defaultValue={items.name}
-                      />
-                    </div>
-                  </td>
-                  <td className="inline-block w-[18%] max-w-[18%] overflow-scroll no-scroller font-medium text-start">
-                    <div className="name  gap-6   pr-4">
-                      <label
-                        htmlFor={`email-${index}`}
-                        className="text-xs w-[40%] font-semibold text-gray-800"
-                      >
-                        Email
-                      </label>
-                      <input
-                        className="p-2 px-2 bg-white   w-full focus:outline-none rounded-lg text-xs"
-                        placeholder="nike@gmail.com"
-                        id={`email-${index}`}
-                        type="email"
-                        defaultValue={items.contactEmail}
-                      />
-                    </div>
-                  </td>
-                  <td className="inline-block w-[18%]  font-medium text-start">
-                    <div className="name  gap-6   pr-4">
-                      <label
-                        htmlFor={`phone-${index}`}
-                        className="text-xs w-[40%] font-semibold text-gray-800"
-                      >
-                        Phone
-                      </label>
-                      <input
-                        className="p-2 px-2 bg-white   w-full focus:outline-none rounded-lg text-xs"
-                        placeholder="+97 9876443210"
-                        id={`phone-${index}`}
-                        type="text"
-                        defaultValue={items.contactPhone}
-                      />
-                    </div>
-                  </td>
-                  <td className="inline-block w-[18%]  font-medium text-start">
-                    <div className="name  gap-6   pr-4">
-                      <label
-                        htmlFor={`address-${index}`}
-                        className="text-xs w-[40%] font-semibold text-gray-800"
-                      >
-                        Address
-                      </label>
-                      <input
-                        className="p-2 px-2 bg-white  w-full focus:outline-none rounded-lg text-xs"
-                        placeholder="California"
-                        id={`address-${index}`}
-                        type="text"
-                        defaultValue={items.address}
-                      />
-                    </div>
-                  </td>
-                  <td className="inline-block w-[18%] font-medium text-start">
-                    <div className="flex gap-2 items-center">
-                      <button
-                        onClick={() => {
-                          const name = document.getElementById(
-                            `name-${index}`
-                          ).value;
-                          const email = document.getElementById(
-                            `email-${index}`
-                          ).value;
-                          const phone = document.getElementById(
-                            `phone-${index}`
-                          ).value;
-                          const address = document.getElementById(
-                            `address-${index}`
-                          ).value;
-
-                          handleSubmit(
-                            items._id,
-                            name,
-                            email,
-                            phone,
-                            address,
-                            items.name,
-                            items.contactEmail,
-                            items.contactPhone,
-                            items.address,
-                            index
-                          );
-                        }}
-                        className="px-4 py-2 relative overflow-hidden bg-black text-xs rounded-md text-white"
-                      >
-                        Update
-                        {/* {updateSubmitted ? (
-                          <div className="h-full w-full top-0 left-0 absolute z-20 bg-black flex items-center justify-center">
-                            <div className="loader animate-spin border-x-2 border-x-white border-y-2 border-y-transparent h-5 w-5 rounded-full"></div>
-                          </div>
+        <div className="w-full overflow-x-auto border border-neutral-800 bg-neutral-900/90 rounded-none shadow-xl" style={{ borderRadius: 0 }}>
+          <table className="w-full text-left border-collapse min-w-[850px]">
+            <thead>
+              <tr className="bg-neutral-950 text-[10px] uppercase text-neutral-400 font-semibold border-b border-neutral-800 tracking-wider">
+                <th className="p-3.5 w-16">Avatar</th>
+                <th className="p-3.5">Vendor Name</th>
+                <th className="p-3.5">Email</th>
+                <th className="p-3.5">Phone</th>
+                <th className="p-3.5">Address</th>
+                <th className="p-3.5 text-center w-20">Edit</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-800/80 text-xs">
+              {data?.map((items, index) => (
+                <React.Fragment key={items._id || items.name || index}>
+                  <tr className="hover:bg-neutral-800/40 transition-colors">
+                    <td className="p-3.5">
+                      <div className="h-9 w-9 rounded-none overflow-hidden bg-neutral-950 border border-neutral-800 flex items-center justify-center" style={{ borderRadius: 0 }}>
+                        {items.imageLink ? (
+                          <img
+                            src={items.imageLink}
+                            alt={items.name}
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
-                          ""
-                        )} */}
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleDeleteCancel(index);
-                          handleDropClose(index);
-                        }}
-                      >
-                        <i className="ri-close-line text-base h-7 w-7  flex items-center justify-center  rounded-full border font-semibold border-black"></i>
-                      </button>
-
-                      <div className="relative  h-7 w-7 overflow-hidden rounded-full">
-                        <i
-                          id={`warn-${index}`}
-                          onClick={(e) => (e.target.style.display = "none")}
-                          className="ri-delete-bin-line text-base cursor-pointer absolute flex items-center justify-center  h-full w-full z-20  rounded-full text-white   bg-red-500"
-                        ></i>
-                        {deleteSubmitted ? (
-                          <div className="h-full w-full animate-spin z-20 flex items-center justify-center absolute">
-                            <div className="loader border-x-2 border-x-black border-y-2 border-y-transparent h-5 w-5 rounded-full"></div>
-                          </div>
-                        ) : (
-                          <i
-                            onClick={() => handleDelete(items._id)}
-                            className="ri-check-line text-base w-full h-full cursor-pointer text-black border border-black rounded-full absolute left-0 top-0 flex items-center justify-center"
-                          ></i>
+                          <i className="ri-user-line text-neutral-500"></i>
                         )}
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="p-3.5 font-semibold text-white">
+                      {items.name}
+                    </td>
+                    <td className="p-3.5 text-neutral-300 font-mono text-[11px]">
+                      {items.contactEmail}
+                    </td>
+                    <td className="p-3.5 text-neutral-300 font-mono text-[11px]">
+                      {items.contactPhone}
+                    </td>
+                    <td className="p-3.5 text-neutral-400">
+                      {items.address}
+                    </td>
+                    <td className="p-3.5 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleDropOpen(index)}
+                        className="p-1.5 bg-neutral-800 hover:bg-white hover:text-black text-neutral-300 border border-neutral-700 rounded-none transition"
+                        style={{ borderRadius: 0 }}
+                        title="Edit vendor"
+                      >
+                        <i className="ri-edit-line text-sm"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr
+                    id={`drop-${index}`}
+                    style={{ display: "none" }}
+                    className="bg-neutral-950 border-y border-neutral-800 text-xs"
+                  >
+                    <td colSpan={6} className="p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between border-b border-neutral-800/80 pb-2">
+                          <p className="font-bold font-[panchang] uppercase tracking-wider text-xs text-white">
+                            Edit Vendor: {items.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleDropClose(index)}
+                            className="text-neutral-400 hover:text-white text-sm"
+                          >
+                            <i className="ri-close-line"></i>
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1">
+                              Name
+                            </label>
+                            <input
+                              id={`name-${index}`}
+                              className="p-2 bg-neutral-900 border border-neutral-800 w-full text-white text-xs focus:outline-none focus:border-white rounded-none"
+                              style={{ borderRadius: 0 }}
+                              defaultValue={items.name}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1">
+                              Email
+                            </label>
+                            <input
+                              id={`email-${index}`}
+                              className="p-2 bg-neutral-900 border border-neutral-800 w-full text-white text-xs focus:outline-none focus:border-white rounded-none"
+                              style={{ borderRadius: 0 }}
+                              defaultValue={items.contactEmail}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1">
+                              Phone
+                            </label>
+                            <input
+                              id={`phone-${index}`}
+                              className="p-2 bg-neutral-900 border border-neutral-800 w-full text-white text-xs focus:outline-none focus:border-white rounded-none"
+                              style={{ borderRadius: 0 }}
+                              defaultValue={items.contactPhone}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase font-semibold text-neutral-400 mb-1">
+                              Address
+                            </label>
+                            <input
+                              id={`address-${index}`}
+                              className="p-2 bg-neutral-900 border border-neutral-800 w-full text-white text-xs focus:outline-none focus:border-white rounded-none"
+                              style={{ borderRadius: 0 }}
+                              defaultValue={items.address}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const name = document.getElementById(`name-${index}`).value;
+                              const email = document.getElementById(`email-${index}`).value;
+                              const phone = document.getElementById(`phone-${index}`).value;
+                              const address = document.getElementById(`address-${index}`).value;
+
+                              handleSubmit(
+                                items._id,
+                                name,
+                                email,
+                                phone,
+                                address,
+                                items.name,
+                                items.contactEmail,
+                                items.contactPhone,
+                                items.address,
+                                index
+                              );
+                            }}
+                            className="px-4 py-2 bg-white text-black hover:bg-neutral-200 text-xs font-bold uppercase tracking-wider rounded-none transition"
+                            style={{ borderRadius: 0 }}
+                          >
+                            Save Changes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(items._id)}
+                            className="px-3 py-2 bg-red-950/60 border border-red-850 hover:bg-red-900/60 text-red-300 text-xs font-semibold uppercase tracking-wider rounded-none transition"
+                            style={{ borderRadius: 0 }}
+                            title="Delete Vendor"
+                          >
+                            <i className="ri-delete-bin-line mr-1"></i> Delete
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
