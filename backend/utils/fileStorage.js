@@ -12,7 +12,7 @@ const path = require('path');
 const getFileUrl = (req, relativePath) => {
     if (!relativePath) return '';
     const cleanPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
-    const baseUrl = process.env.SERVER_URL || (req ? `${req.protocol}://${req.get('host')}` : '');
+    const baseUrl = process.env.SERVER_URL || "https://t-sabinz.onrender.com" || (req ? `${req.protocol}://${req.get('host')}` : '');
     return `${baseUrl}${cleanPath}`;
 };
 
