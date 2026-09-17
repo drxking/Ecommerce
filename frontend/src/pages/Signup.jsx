@@ -64,6 +64,12 @@ const Signup = () => {
       );
       setResponsed(response);
       if (response.data.status == "success") {
+        if (response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        } else {
+          localStorage.setItem("user", JSON.stringify({ firstName, lastName, email }));
+        }
+        window.dispatchEvent(new Event("authUpdated"));
         navigate("/");
       } else {
         seterror((e) => !e);

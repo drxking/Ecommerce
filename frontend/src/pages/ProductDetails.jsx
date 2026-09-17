@@ -227,11 +227,11 @@ const ProductDetails = () => {
 
                   {/* Price Block */}
                   <div className="flex items-baseline gap-3 mt-4">
-                    <span className="text-2xl md:text-3xl font-bold font-mono text-white">
+                    <span className="text-2xl md:text-3xl font-bold text-white">
                       ₹ {Number(product.price || 0).toLocaleString()}
                     </span>
                     {product.comparedPrice && Number(product.comparedPrice) > Number(product.price) && (
-                      <span className="text-base text-neutral-500 line-through font-mono">
+                      <span className="text-base text-neutral-500 line-through">
                         ₹ {Number(product.comparedPrice).toLocaleString()}
                       </span>
                     )}

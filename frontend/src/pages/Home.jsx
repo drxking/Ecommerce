@@ -26,26 +26,36 @@ const Home = () => {
           axios.get(`${import.meta.env.VITE_BASE_URL}/products`),
         ]);
 
-        if (configRes.data?.data) {
-          setHomeConfig(configRes.data.data);
-          if (configRes.data.data.orderedCollections?.length > 0) {
-            const sorted = configRes.data.data.orderedCollections
-              .filter((i) => i && i.collection)
+        const config = configRes.data?.data || configRes.data;
+        if (config) {
+          setHomeConfig(config);
+          if (config.orderedCollections?.length > 0) {
+            const sorted = config.orderedCollections
+              .filter((i) => i && (i.collection || i.collect))
               .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((i) => i.collection);
+              .map((i) => i.collection || i.collect);
             setOrderedCollections(sorted);
           } else {
             // Fallback to all collections
             const colsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/collections`);
-            if (Array.isArray(colsRes.data?.data)) {
-              setOrderedCollections(colsRes.data.data);
-            }
+            const colList = Array.isArray(colsRes.data?.data)
+              ? colsRes.data.data
+              : Array.isArray(colsRes.data)
+              ? colsRes.data
+              : [];
+            setOrderedCollections(colList);
           }
         }
 
-        if (Array.isArray(prodRes.data)) {
-          setTopProducts(prodRes.data.slice(0, 6));
-        }
+        const rawProds = prodRes.data;
+        const prodList = Array.isArray(rawProds)
+          ? rawProds
+          : Array.isArray(rawProds?.data)
+          ? rawProds.data
+          : Array.isArray(rawProds?.products)
+          ? rawProds.products
+          : [];
+        setTopProducts(prodList.slice(0, 6));
       } catch (err) {
         console.error("Failed to load home data:", err);
       }
@@ -234,7 +244,7 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-2">
-            {topProducts.slice(0, 4).map((product) => (
+            {topProducts.map((product) => (
               <Card key={product._id} {...product} />
             ))}
           </div>
