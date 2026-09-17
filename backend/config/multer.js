@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { isCloudinaryStorage } = require('./cloudinary');
 
 /**
  * Creates a multer diskStorage engine for a specific subfolder inside uploads/
@@ -21,6 +22,12 @@ const createDiskStorage = (subfolder) => {
         }
     });
 };
+
+// Vercel and similar serverless runtimes have a read-only application
+// filesystem. In Cloudinary mode keep the upload in memory and let the storage
+// adapter stream it to Cloudinary instead of writing under /uploads.
+const createStorage = (subfolder) =>
+    isCloudinaryStorage() ? multer.memoryStorage() : createDiskStorage(subfolder);
 
 /**
  * File filter to ensure only image files are accepted.
@@ -54,37 +61,37 @@ const bannerLimits = {
 
 // Specialized uploaders
 const uploadProduct = multer({
-    storage: createDiskStorage('products'),
+    storage: createStorage('products'),
     fileFilter: imageFileFilter,
     limits: imageLimits
 });
 
 const uploadCollection = multer({
-    storage: createDiskStorage('collections'),
+    storage: createStorage('collections'),
     fileFilter: imageFileFilter,
     limits: imageLimits
 });
 
 const uploadVendor = multer({
-    storage: createDiskStorage('vendors'),
+    storage: createStorage('vendors'),
     fileFilter: imageFileFilter,
     limits: imageLimits
 });
 
 const uploadCategory = multer({
-    storage: createDiskStorage('categories'),
+    storage: createStorage('categories'),
     fileFilter: imageFileFilter,
     limits: imageLimits
 });
 
 const uploadBanner = multer({
-    storage: createDiskStorage('banners'),
+    storage: createStorage('banners'),
     fileFilter: mediaFileFilter,
     limits: bannerLimits
 });
 
 // Generic uploader that automatically selects the folder based on request URL
-const genericStorage = multer.diskStorage({
+const genericStorage = isCloudinaryStorage() ? multer.memoryStorage() : multer.diskStorage({
     destination: (req, file, cb) => {
         let folder = 'others';
         const url = req.baseUrl || req.originalUrl || '';
@@ -119,5 +126,6 @@ module.exports = {
     uploadVendor,
     uploadCategory,
     uploadBanner,
-    createDiskStorage
+    createDiskStorage,
+    createStorage
 };

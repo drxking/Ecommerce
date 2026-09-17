@@ -2,6 +2,7 @@ const express = require("express");
 const { authenticateAdmin } = require("../middlewares/authenticateAdmin");
 const {
     getHomeConfig,
+    getBannerUploadSignature,
     updateBanner,
     updateOrderedCollections,
     updateTopThreeCollections
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/", getHomeConfig);
 
 // Admin routes to configure homepage
+router.post("/banner/upload-signature", authenticateAdmin, getBannerUploadSignature);
 router.post("/banner", authenticateAdmin, uploadBanner.single("media"), updateBanner);
 router.patch("/banner", authenticateAdmin, uploadBanner.single("media"), updateBanner);
 

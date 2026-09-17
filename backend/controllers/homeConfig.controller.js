@@ -2,6 +2,7 @@ const homeConfigModel = require("../models/homeConfig.model");
 const collectionModel = require("../models/collection.model");
 const mongoose = require("mongoose");
 const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { getCloudinary, isCloudinaryStorage } = require("../config/cloudinary");
 
 // Helper to format config so orderedCollections always has a .collection field for frontend
 const formatConfig = (config) => {
@@ -60,6 +61,36 @@ module.exports.getHomeConfig = async (req, res) => {
     }
 };
 
+// Lets an authenticated admin upload banner media directly to Cloudinary. The
+// signature is short-lived and does not expose the Cloudinary API secret.
+module.exports.getBannerUploadSignature = (req, res) => {
+    if (!isCloudinaryStorage()) {
+        return res.json({ status: "success", provider: "local" });
+    }
+
+    try {
+        const cloudinary = getCloudinary();
+        const timestamp = Math.floor(Date.now() / 1000);
+        const folder = "ecommerce/banners";
+        const signature = cloudinary.utils.api_sign_request(
+            { timestamp, folder },
+            process.env.CLOUDINARY_API_SECRET
+        );
+
+        return res.json({
+            status: "success",
+            provider: "cloudinary",
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+            apiKey: process.env.CLOUDINARY_API_KEY,
+            timestamp,
+            folder,
+            signature,
+        });
+    } catch (err) {
+        return res.status(500).json({ status: "failed", message: err.message });
+    }
+};
+
 module.exports.updateBanner = async (req, res) => {
     try {
         let config = await homeConfigModel.findOne();
@@ -67,7 +98,7 @@ module.exports.updateBanner = async (req, res) => {
             config = new homeConfigModel();
         }
 
-        const { title, redirectLink } = req.body;
+        const { title, redirectLink, mediaUrl, mediaType: requestedMediaType } = req.body;
 
         if (title !== undefined) {
             config.banner.title = title;
@@ -77,10 +108,28 @@ module.exports.updateBanner = async (req, res) => {
             config.banner.redirectLink = redirectLink;
         }
 
+        let mediaLink;
+        let mediaType;
         if (req.file) {
+            mediaType = req.file.mimetype?.startsWith("video/") ? "video" : "image";
+            mediaLink = await storeFile(req, req.file, "banners");
+        } else if (mediaUrl) {
+            if (!isCloudinaryStorage()) {
+                return res.status(400).json({ status: "failed", message: "Direct media URLs require Cloudinary storage" });
+            }
+
+            const url = new URL(mediaUrl);
+            const expectedPath = `/${process.env.CLOUDINARY_CLOUD_NAME}/`;
+            if (url.hostname !== "res.cloudinary.com" || !url.pathname.startsWith(expectedPath)) {
+                return res.status(400).json({ status: "failed", message: "Invalid Cloudinary media URL" });
+            }
+
+            mediaType = requestedMediaType === "image" ? "image" : "video";
+            mediaLink = mediaUrl;
+        }
+
+        if (mediaLink) {
             const oldMedia = config.banner.mediaLink || config.banner.videoLink;
-            const mediaType = req.file.mimetype?.startsWith("video/") ? "video" : "image";
-            const mediaLink = await storeFile(req, req.file, "banners");
             config.banner.mediaLink = mediaLink;
             config.banner.mediaType = mediaType;
             // Keep the legacy field populated for clients that still read it.

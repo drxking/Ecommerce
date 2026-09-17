@@ -109,7 +109,33 @@ const Main = () => {
       formData.append("title", bannerTitle);
       formData.append("redirectLink", bannerRedirect);
       if (videoFile) {
-        formData.append("media", videoFile);
+        // Cloudinary uploads bypass the API proxy, avoiding 413 errors for
+        // larger banner videos. Local storage continues to use the API upload.
+        const signatureResponse = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/home-config/banner/upload-signature`,
+          {},
+          { withCredentials: true }
+        );
+        const uploadConfig = signatureResponse.data;
+
+        if (uploadConfig.provider === "cloudinary") {
+          const cloudinaryForm = new FormData();
+          cloudinaryForm.append("file", videoFile);
+          cloudinaryForm.append("api_key", uploadConfig.apiKey);
+          cloudinaryForm.append("timestamp", uploadConfig.timestamp);
+          cloudinaryForm.append("signature", uploadConfig.signature);
+          cloudinaryForm.append("folder", uploadConfig.folder);
+
+          const cloudinaryResponse = await axios.post(
+            `https://api.cloudinary.com/v1_1/${uploadConfig.cloudName}/auto/upload`,
+            cloudinaryForm,
+            { withCredentials: false }
+          );
+          formData.append("mediaUrl", cloudinaryResponse.data.secure_url);
+          formData.append("mediaType", bannerMediaType);
+        } else {
+          formData.append("media", videoFile);
+        }
       }
 
       const res = await axios.post(

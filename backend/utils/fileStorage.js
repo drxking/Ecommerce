@@ -20,8 +20,8 @@ const getFileUrl = (req, relativePath) => {
 
 /**
  * Stores a multer file using the configured provider and returns its public URL.
- * Multer always writes a temporary/local file first; Cloudinary uploads it and
- * then removes that temporary copy.
+ * Cloudinary mode accepts either a Multer memory buffer (serverless-safe) or
+ * a temporary local file (traditional server runtime).
  */
 const storeFile = async (req, file, folder) => {
     if (!file) throw new Error('No file supplied for storage');
@@ -32,12 +32,21 @@ const storeFile = async (req, file, folder) => {
 
     const cloudinary = getCloudinary();
     const resourceType = file.mimetype?.startsWith('video/') ? 'video' : 'image';
-    const result = await cloudinary.uploader.upload(file.path, {
+    const options = {
         folder: `ecommerce/${folder}`,
         resource_type: resourceType,
         use_filename: true,
         unique_filename: true,
-    });
+    };
+    const result = file.buffer
+        ? await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(options, (error, uploaded) => {
+                if (error) reject(error);
+                else resolve(uploaded);
+            });
+            stream.end(file.buffer);
+        })
+        : await cloudinary.uploader.upload(file.path, options);
 
     // The source is only a temporary staging file in Cloudinary mode.
     if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
