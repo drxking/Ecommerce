@@ -1,5 +1,5 @@
 const typeModel = require("../models/type.model");
-const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 module.exports.getSearchType = async (req, res) => {
     try {
@@ -70,7 +70,7 @@ module.exports.addType = async (req, res) => {
 
         let imageLink = undefined;
         if (req.file) {
-            imageLink = getFileUrl(req, `/uploads/categories/${req.file.filename}`);
+            imageLink = await storeFile(req, req.file, "categories");
         }
 
         let type = await typeModel.create({
@@ -107,7 +107,7 @@ module.exports.deleteType = async (req, res) => {
         }
 
         if (type.imageLink) {
-            deleteLocalFile(type.imageLink);
+            await deleteStoredFile(type.imageLink);
         }
 
         res.json({

@@ -14,8 +14,8 @@ const router = express.Router();
 router.get("/", getHomeConfig);
 
 // Admin routes to configure homepage
-router.post("/banner", authenticateAdmin, uploadBanner.single("video"), updateBanner);
-router.patch("/banner", authenticateAdmin, uploadBanner.single("video"), updateBanner);
+router.post("/banner", authenticateAdmin, uploadBanner.single("media"), updateBanner);
+router.patch("/banner", authenticateAdmin, uploadBanner.single("media"), updateBanner);
 
 router.post("/ordered-collections", authenticateAdmin, updateOrderedCollections);
 router.patch("/ordered-collections", authenticateAdmin, updateOrderedCollections);

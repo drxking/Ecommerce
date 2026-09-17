@@ -1,7 +1,7 @@
 let collectionModel = require("../models/collection.model");
 const homeConfigModel = require("../models/homeConfig.model");
 const { uploadCollection } = require("../config/multer");
-const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 // Multer upload middleware for collection thumbnail
 module.exports.uploadFiles = uploadCollection.fields([
@@ -28,7 +28,7 @@ module.exports.addCollection = async (req, res) => {
       });
     }
 
-    const thumbnailImageLink = getFileUrl(req, `/uploads/collections/${thumbnailFile.filename}`);
+    const thumbnailImageLink = await storeFile(req, thumbnailFile, "collections");
 
     let collection = await collectionModel.create({
       name,
@@ -104,9 +104,9 @@ module.exports.updateCollection = async (req, res) => {
 
     const thumbnailFile = req.file || req.files?.thumbnail?.[0];
     if (thumbnailFile) {
-      updateData.thumbnailImageLink = getFileUrl(req, `/uploads/collections/${thumbnailFile.filename}`);
+      updateData.thumbnailImageLink = await storeFile(req, thumbnailFile, "collections");
       if (oldCollection.thumbnailImageLink && oldCollection.thumbnailImageLink.includes("/uploads/collections/")) {
-        deleteLocalFile(oldCollection.thumbnailImageLink);
+        await deleteStoredFile(oldCollection.thumbnailImageLink);
       }
     }
 
@@ -337,7 +337,7 @@ module.exports.removeCollection = async (req, res) => {
     if (collection) {
       // Delete image from local storage
       if (collection.thumbnailImageLink) {
-        deleteLocalFile(collection.thumbnailImageLink);
+        await deleteStoredFile(collection.thumbnailImageLink);
       }
 
       // Also remove from homeConfig if present

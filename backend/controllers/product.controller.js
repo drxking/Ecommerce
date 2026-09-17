@@ -3,7 +3,7 @@ const { vendorModel } = require("../models/vendor.model");
 const typeModel = require("../models/type.model");
 const collectionModel = require("../models/collection.model");
 const mongoose = require("mongoose");
-const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 module.exports.getAllProducts = async (req, res) => {
     try {
@@ -91,18 +91,17 @@ module.exports.addProduct = async (req, res) => {
             });
         }
 
-        const imageLink = getFileUrl(req, `/uploads/products/${mainImageFile.filename}`);
+        const imageLink = await storeFile(req, mainImageFile, "products");
 
         // Gather secondary/other images
-        const otherImageLinks = [];
+        const otherImageFiles = [];
         const otherFields = ['otherImage1', 'otherImage2', 'otherImage3', 'otherImage4', 'otherImages'];
         otherFields.forEach((field) => {
             if (req.files && req.files[field]) {
-                req.files[field].forEach((f) => {
-                    otherImageLinks.push(getFileUrl(req, `/uploads/products/${f.filename}`));
-                });
+                otherImageFiles.push(...req.files[field]);
             }
         });
+        const otherImageLinks = await Promise.all(otherImageFiles.map((file) => storeFile(req, file, "products")));
 
         // Resolve vendor
         let vendorId = null;
@@ -231,21 +230,20 @@ module.exports.updateProduct = async (req, res) => {
         // Handle main image update
         const mainImageFile = req.files?.mainImage?.[0] || req.files?.image?.[0] || req.file;
         if (mainImageFile) {
-            updateData.imageLink = getFileUrl(req, `/uploads/products/${mainImageFile.filename}`);
+            updateData.imageLink = await storeFile(req, mainImageFile, "products");
             if (oldProduct.imageLink) {
-                deleteLocalFile(oldProduct.imageLink);
+                await deleteStoredFile(oldProduct.imageLink);
             }
         }
 
         // Handle other images update if provided
-        const newOtherImages = [];
+        const newOtherImageFiles = [];
         ['otherImage1', 'otherImage2', 'otherImage3', 'otherImage4', 'otherImages'].forEach((field) => {
             if (req.files && req.files[field]) {
-                req.files[field].forEach((f) => {
-                    newOtherImages.push(getFileUrl(req, `/uploads/products/${f.filename}`));
-                });
+                newOtherImageFiles.push(...req.files[field]);
             }
         });
+        const newOtherImages = await Promise.all(newOtherImageFiles.map((file) => storeFile(req, file, "products")));
 
         if (newOtherImages.length > 0) {
             updateData.otherImageLink = [...(oldProduct.otherImageLink || []), ...newOtherImages];
@@ -359,10 +357,10 @@ module.exports.deleteProduct = async (req, res) => {
 
         // Delete local images
         if (product.imageLink) {
-            deleteLocalFile(product.imageLink);
+            await deleteStoredFile(product.imageLink);
         }
         if (Array.isArray(product.otherImageLink)) {
-            product.otherImageLink.forEach((link) => deleteLocalFile(link));
+            await Promise.all(product.otherImageLink.map((link) => deleteStoredFile(link)));
         }
 
         // Remove from collections

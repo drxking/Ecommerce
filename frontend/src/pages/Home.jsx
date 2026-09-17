@@ -94,15 +94,23 @@ const Home = () => {
       {/* 1. Hero Banner Video at Top */}
       <div className="hero relative w-screen h-screen flex flex-col items-center justify-center text-white uppercase overflow-hidden">
         <div className="w-full hero-anim overflow-hidden absolute top-0 left-0 h-full flex items-center justify-center">
-          <video
-            key={homeConfig?.banner?.videoLink || "/hero.webm"}
-            src={homeConfig?.banner?.videoLink || "/hero.webm"}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover relative top-0 left-0"
-          />
+          {(homeConfig?.banner?.mediaType || "video") === "image" ? (
+            <img
+              src={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink}
+              alt={homeConfig?.banner?.title || "Store banner"}
+              className="w-full h-full object-cover relative top-0 left-0"
+            />
+          ) : (
+            <video
+              key={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink || "/hero.webm"}
+              src={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink || "/hero.webm"}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover relative top-0 left-0"
+            />
+          )}
 
           {/* Overlay Title & Redirect Link */}
           {(homeConfig?.banner?.title || (homeConfig?.banner?.redirectLink && homeConfig?.banner?.redirectLink !== "/")) && (

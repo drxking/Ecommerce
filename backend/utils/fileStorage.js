@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getCloudinary, isCloudinaryStorage } = require('../config/cloudinary');
 require('dotenv').config()
 
 /**
@@ -15,6 +16,59 @@ const getFileUrl = (req, relativePath) => {
     const cleanPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
     const baseUrl = process.env.SERVER_URL  || (req ? `${req.protocol}://${req.get('host')}` : '');
     return `${baseUrl}${cleanPath}`;
+};
+
+/**
+ * Stores a multer file using the configured provider and returns its public URL.
+ * Multer always writes a temporary/local file first; Cloudinary uploads it and
+ * then removes that temporary copy.
+ */
+const storeFile = async (req, file, folder) => {
+    if (!file) throw new Error('No file supplied for storage');
+
+    if (!isCloudinaryStorage()) {
+        return getFileUrl(req, `/uploads/${folder}/${file.filename}`);
+    }
+
+    const cloudinary = getCloudinary();
+    const resourceType = file.mimetype?.startsWith('video/') ? 'video' : 'image';
+    const result = await cloudinary.uploader.upload(file.path, {
+        folder: `ecommerce/${folder}`,
+        resource_type: resourceType,
+        use_filename: true,
+        unique_filename: true,
+    });
+
+    // The source is only a temporary staging file in Cloudinary mode.
+    if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    return result.secure_url;
+};
+
+const getCloudinaryPublicId = (fileUrl) => {
+    try {
+        const url = new URL(fileUrl);
+        if (!url.hostname.endsWith('cloudinary.com')) return null;
+        const match = url.pathname.match(/\/(?:image|video|raw)\/upload\/(?:v\d+\/)?(.+)$/);
+        if (!match) return null;
+        return decodeURIComponent(match[1]).replace(/\.[^/.]+$/, '');
+    } catch {
+        return null;
+    }
+};
+
+/** Deletes either a legacy/local upload or a Cloudinary asset. */
+const deleteStoredFile = async (fileUrlOrPath) => {
+    if (!fileUrlOrPath || typeof fileUrlOrPath !== 'string') return;
+
+    const publicId = getCloudinaryPublicId(fileUrlOrPath);
+    if (publicId) {
+        const cloudinary = getCloudinary();
+        const resourceType = fileUrlOrPath.includes('/video/upload/') ? 'video' : 'image';
+        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+        return;
+    }
+
+    deleteLocalFile(fileUrlOrPath);
 };
 
 /**
@@ -95,6 +149,8 @@ const cleanupUploadedFiles = (files) => {
 
 module.exports = {
     getFileUrl,
+    storeFile,
     deleteLocalFile,
+    deleteStoredFile,
     cleanupUploadedFiles
 };

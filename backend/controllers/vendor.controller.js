@@ -1,6 +1,6 @@
 require("dotenv").config();
 let { vendorModel } = require("../models/vendor.model");
-const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 module.exports.addVendor = async (req, res) => {
     try {
@@ -18,7 +18,7 @@ module.exports.addVendor = async (req, res) => {
             return res.status(400).json({ "message": "No file uploaded", "status": "failed" });
         }
 
-        const imageLink = getFileUrl(req, `/uploads/vendors/${file.filename}`);
+        const imageLink = await storeFile(req, file, "vendors");
 
         let vendor = await vendorModel.create({
             name,
@@ -72,7 +72,7 @@ module.exports.updateVendor = async (req, res) => {
         if (address) updateData.address = address;
 
         if (req.file) {
-            updateData.imageLink = getFileUrl(req, `/uploads/vendors/${req.file.filename}`);
+            updateData.imageLink = await storeFile(req, req.file, "vendors");
         }
 
         const oldVendor = await vendorModel.findById(req.params.id);
@@ -92,7 +92,7 @@ module.exports.updateVendor = async (req, res) => {
 
         // If new image was uploaded, delete the old image
         if (req.file && oldVendor.imageLink) {
-            deleteLocalFile(oldVendor.imageLink);
+            await deleteStoredFile(oldVendor.imageLink);
         }
 
         res.json({
@@ -125,7 +125,7 @@ module.exports.deleteVendor = async (req, res) => {
 
         // Delete from local storage
         if (vendor.imageLink) {
-            deleteLocalFile(vendor.imageLink);
+            await deleteStoredFile(vendor.imageLink);
         }
 
         res.json({

@@ -11,6 +11,7 @@ const Main = () => {
   const [bannerTitle, setBannerTitle] = useState("");
   const [bannerRedirect, setBannerRedirect] = useState("/");
   const [currentVideoUrl, setCurrentVideoUrl] = useState("/hero.webm");
+  const [bannerMediaType, setBannerMediaType] = useState("video");
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
   const [savingBanner, setSavingBanner] = useState(false);
@@ -52,7 +53,8 @@ const Main = () => {
       if (config.banner) {
         setBannerTitle(config.banner.title || "");
         setBannerRedirect(config.banner.redirectLink || "/");
-        setCurrentVideoUrl(config.banner.videoLink || "/hero.webm");
+        setCurrentVideoUrl(config.banner.mediaLink || config.banner.videoLink || "/hero.webm");
+        setBannerMediaType(config.banner.mediaType || "video");
       }
 
       // Ordered collections init
@@ -87,6 +89,12 @@ const Main = () => {
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const selectedType = file.type.startsWith("image/") ? "image" : "video";
+      if (selectedType !== bannerMediaType) {
+        showNotification(`Please choose a ${bannerMediaType} file.`, "error");
+        e.target.value = "";
+        return;
+      }
       setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
     }
@@ -101,7 +109,7 @@ const Main = () => {
       formData.append("title", bannerTitle);
       formData.append("redirectLink", bannerRedirect);
       if (videoFile) {
-        formData.append("video", videoFile);
+        formData.append("media", videoFile);
       }
 
       const res = await axios.post(
@@ -115,8 +123,9 @@ const Main = () => {
 
       if (res.data.status === "success") {
         showNotification("Banner updated successfully!");
-        if (res.data.data?.videoLink) {
-          setCurrentVideoUrl(res.data.data.videoLink);
+        if (res.data.data?.mediaLink || res.data.data?.videoLink) {
+          setCurrentVideoUrl(res.data.data.mediaLink || res.data.data.videoLink);
+          setBannerMediaType(res.data.data.mediaType || "video");
           setVideoPreview(null);
           setVideoFile(null);
         }
@@ -329,10 +338,10 @@ const Main = () => {
               </span>
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wide font-[panchang]">
-                  Hero Banner Video & Title
+                  Hero Banner Media & Title
                 </h2>
                 <p className="text-xs text-neutral-400">
-                  Configure the primary hero video, overlay title, and redirect link
+                  Configure a hero image or video, overlay title, and redirect link
                 </p>
               </div>
             </div>
@@ -360,7 +369,7 @@ const Main = () => {
                   style={{ borderRadius: 0 }}
                 />
                 <p className="text-xs text-neutral-500 mt-1">
-                  Leave blank if you want only the video without overlay text.
+                  Leave blank if you want only the media without overlay text.
                 </p>
               </div>
 
@@ -406,12 +415,31 @@ const Main = () => {
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                  Upload New Banner Video
+                  Banner Media Type
+                </label>
+                <select
+                  value={bannerMediaType}
+                  onChange={(e) => {
+                    setBannerMediaType(e.target.value);
+                    setVideoFile(null);
+                    setVideoPreview(null);
+                    if (videoInputRef.current) videoInputRef.current.value = "";
+                  }}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-none p-3 text-sm text-white focus:outline-none focus:border-white transition"
+                >
+                  <option value="video">Video</option>
+                  <option value="image">Image</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
+                  Upload New Banner Image or Video
                 </label>
                 <input
                   type="file"
                   ref={videoInputRef}
-                  accept="video/*,image/*"
+                  accept={bannerMediaType === "image" ? "image/*" : "video/*"}
                   onChange={handleVideoChange}
                   className="hidden"
                 />
@@ -420,12 +448,12 @@ const Main = () => {
                   className="border-2 border-dashed border-neutral-700 hover:border-white p-6 text-center cursor-pointer bg-neutral-950/60 hover:bg-neutral-950 transition-all rounded-none"
                   style={{ borderRadius: 0 }}
                 >
-                  <i className="ri-video-upload-line text-3xl text-neutral-400"></i>
+                  <i className={bannerMediaType === "image" ? "ri-image-upload-line text-3xl text-neutral-400" : "ri-video-upload-line text-3xl text-neutral-400"}></i>
                   <p className="text-sm font-medium text-neutral-300 mt-2">
-                    {videoFile ? videoFile.name : "Click to browse and upload video (MP4, WEBM)"}
+                    {videoFile ? videoFile.name : "Click to browse an image or video"}
                   </p>
                   <p className="text-xs text-neutral-500 mt-1">
-                    Max size: 100MB (Stored on local server disk)
+                    Images and videos up to 100MB. Storage provider is selected by the server.
                   </p>
                 </div>
               </div>
@@ -451,13 +479,19 @@ const Main = () => {
             {/* Right: Live Preview */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                Live Video Preview
+                Live Media Preview
               </label>
               <div
                 className="relative aspect-video w-full overflow-hidden bg-black border border-neutral-800 flex items-center justify-center rounded-none shadow-inner"
                 style={{ borderRadius: 0 }}
               >
-                {videoPreview || currentVideoUrl ? (
+                {videoPreview || currentVideoUrl ? (bannerMediaType === "image" ? (
+                  <img
+                    src={videoPreview || currentVideoUrl}
+                    alt="Banner preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
                   <video
                     src={videoPreview || currentVideoUrl}
                     controls
@@ -465,10 +499,11 @@ const Main = () => {
                     loop
                     className="w-full h-full object-cover"
                   />
+                )
                 ) : (
                   <div className="text-neutral-500 text-sm flex flex-col items-center gap-2">
-                    <i className="ri-video-line text-3xl"></i>
-                    No video configured
+                    <i className="ri-image-line text-3xl"></i>
+                    No media configured
                   </div>
                 )}
                 {/* Overlay Preview */}

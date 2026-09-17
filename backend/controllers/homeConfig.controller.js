@@ -1,12 +1,16 @@
 const homeConfigModel = require("../models/homeConfig.model");
 const collectionModel = require("../models/collection.model");
 const mongoose = require("mongoose");
-const { getFileUrl, deleteLocalFile, cleanupUploadedFiles } = require("../utils/fileStorage");
+const { storeFile, deleteStoredFile, cleanupUploadedFiles } = require("../utils/fileStorage");
 
 // Helper to format config so orderedCollections always has a .collection field for frontend
 const formatConfig = (config) => {
     if (!config) return null;
     const obj = config.toObject ? config.toObject() : { ...config };
+    if (obj.banner) {
+        obj.banner.mediaLink = obj.banner.mediaLink || obj.banner.videoLink || "/hero.webm";
+        obj.banner.mediaType = obj.banner.mediaType || (obj.banner.mediaLink.match(/\.(mp4|webm|mov|m4v)$/i) ? "video" : "image");
+    }
     if (obj.orderedCollections && Array.isArray(obj.orderedCollections)) {
         obj.orderedCollections = obj.orderedCollections.map((item) => ({
             ...item,
@@ -27,6 +31,8 @@ const getOrCreateConfig = async () => {
             banner: {
                 title: "",
                 videoLink: "/hero.webm",
+                mediaLink: "/hero.webm",
+                mediaType: "video",
                 redirectLink: "/"
             },
             orderedCollections: [],
@@ -72,12 +78,15 @@ module.exports.updateBanner = async (req, res) => {
         }
 
         if (req.file) {
-            const oldVideo = config.banner.videoLink;
-            config.banner.videoLink = getFileUrl(req, `/uploads/banners/${req.file.filename}`);
+            const oldMedia = config.banner.mediaLink || config.banner.videoLink;
+            const mediaType = req.file.mimetype?.startsWith("video/") ? "video" : "image";
+            const mediaLink = await storeFile(req, req.file, "banners");
+            config.banner.mediaLink = mediaLink;
+            config.banner.mediaType = mediaType;
+            // Keep the legacy field populated for clients that still read it.
+            config.banner.videoLink = mediaLink;
 
-            if (oldVideo && oldVideo.includes("/uploads/banners/")) {
-                deleteLocalFile(oldVideo);
-            }
+            if (oldMedia) await deleteStoredFile(oldMedia);
         }
 
         await config.save();
@@ -85,7 +94,7 @@ module.exports.updateBanner = async (req, res) => {
         res.json({
             status: "success",
             message: "Banner updated successfully",
-            data: config.banner
+            data: formatConfig(config).banner
         });
     } catch (err) {
         cleanupUploadedFiles(req.file);
