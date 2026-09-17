@@ -25,7 +25,8 @@ const formatConfig = (config) => {
 const getOrCreateConfig = async () => {
     let config = await homeConfigModel.findOne()
         .populate("orderedCollections.collect")
-        .populate("topThreeCollections");
+        .populate("topThreeCollections")
+        .populate("featuredProducts");
 
     if (!config) {
         config = await homeConfigModel.create({
@@ -37,7 +38,8 @@ const getOrCreateConfig = async () => {
                 redirectLink: "/"
             },
             orderedCollections: [],
-            topThreeCollections: []
+            topThreeCollections: [],
+            featuredProducts: []
         });
     }
 
@@ -250,5 +252,34 @@ module.exports.updateTopThreeCollections = async (req, res) => {
             message: "Failed to update top three collections",
             error: err.message
         });
+    }
+};
+
+module.exports.updateFeaturedProducts = async (req, res) => {
+    try {
+        let config = await homeConfigModel.findOne();
+        if (!config) config = new homeConfigModel();
+
+        const { productIds } = req.body;
+        if (!Array.isArray(productIds)) {
+            return res.status(400).json({ status: "failed", message: "productIds must be an array" });
+        }
+        if (productIds.length > 4) {
+            return res.status(400).json({ status: "failed", message: "At most 4 featured products are allowed" });
+        }
+
+        const validIds = [...new Set(productIds.filter((id) => mongoose.Types.ObjectId.isValid(id)).map(String))];
+        config.featuredProducts = validIds;
+        await config.save();
+        await config.populate("featuredProducts");
+
+        return res.json({
+            status: "success",
+            message: "Featured products updated successfully",
+            data: config.featuredProducts
+        });
+    } catch (err) {
+        console.error("Error updating featured products:", err);
+        return res.status(500).json({ status: "failed", message: "Failed to update featured products" });
     }
 };

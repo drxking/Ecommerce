@@ -6,6 +6,7 @@ import "remixicon/fonts/remixicon.css";
 const Main = () => {
   const [loading, setLoading] = useState(true);
   const [allCollections, setAllCollections] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
 
   // Banner states
   const [bannerTitle, setBannerTitle] = useState("");
@@ -25,6 +26,10 @@ const Main = () => {
   const [topThree, setTopThree] = useState([null, null, null]);
   const [savingTopThree, setSavingTopThree] = useState(false);
 
+  // Featured products states (up to 4 product objects)
+  const [featuredProducts, setFeaturedProducts] = useState([null, null, null, null]);
+  const [savingFeaturedProducts, setSavingFeaturedProducts] = useState(false);
+
   // Notification message
   const [message, setMessage] = useState({ text: "", type: "" });
   const videoInputRef = useRef(null);
@@ -40,14 +45,19 @@ const Main = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [configRes, colRes] = await Promise.all([
+      const [configRes, colRes, productRes] = await Promise.all([
         axios.get(`${import.meta.env.VITE_BASE_URL}/home-config`),
         axios.get(`${import.meta.env.VITE_BASE_URL}/collections`),
+        axios.get(`${import.meta.env.VITE_BASE_URL}/products`),
       ]);
 
       const config = configRes.data?.data || {};
       const cols = colRes.data?.data || [];
       setAllCollections(cols);
+      const products = Array.isArray(productRes.data)
+        ? productRes.data
+        : productRes.data?.data || [];
+      setAllProducts(products);
 
       // Banner init
       if (config.banner) {
@@ -72,6 +82,14 @@ const Main = () => {
           slots[idx] = item;
         });
         setTopThree(slots);
+      }
+
+      if (config.featuredProducts && Array.isArray(config.featuredProducts)) {
+        const slots = [null, null, null, null];
+        config.featuredProducts.slice(0, 4).forEach((item, idx) => {
+          slots[idx] = item;
+        });
+        setFeaturedProducts(slots);
       }
     } catch (err) {
       console.error("Error loading dashboard data:", err);
@@ -282,6 +300,38 @@ const Main = () => {
       showNotification(err.response?.data?.message || "Failed to save top three", "error");
     } finally {
       setSavingTopThree(false);
+    }
+  };
+
+  const handleSelectFeaturedProduct = (slotIdx, productId) => {
+    const product = allProducts.find((item) => item._id === productId) || null;
+    setFeaturedProducts((current) => {
+      const slots = [...current];
+      slots[slotIdx] = product;
+      return slots;
+    });
+  };
+
+  const handleSaveFeaturedProducts = async () => {
+    const productIds = featuredProducts.filter(Boolean).map((product) => product._id);
+    if (new Set(productIds).size !== productIds.length) {
+      showNotification("Choose each featured product only once.", "error");
+      return;
+    }
+
+    try {
+      setSavingFeaturedProducts(true);
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/home-config/featured-products`,
+        { productIds },
+        { withCredentials: true }
+      );
+      showNotification(res.data.message || "Featured products saved successfully!", res.data.status === "success" ? "success" : "error");
+    } catch (err) {
+      console.error("Error saving featured products:", err);
+      showNotification(err.response?.data?.message || "Failed to save featured products", "error");
+    } finally {
+      setSavingFeaturedProducts(false);
     }
   };
 
@@ -872,6 +922,56 @@ const Main = () => {
                   <i className="ri-save-line"></i> Save Top Three Collections
                 </>
               )}
+            </button>
+          </div>
+        </section>
+
+        {/* ================= SECTION 4: FEATURED PRODUCTS ================= */}
+        <section
+          className="bg-neutral-900/90 border border-neutral-800 p-6 md:p-8 rounded-none shadow-xl"
+          style={{ borderRadius: 0 }}
+        >
+          <div className="flex items-center justify-between border-b border-neutral-800 pb-4 mb-6">
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 bg-white text-black flex items-center justify-center font-bold text-sm rounded-none">4</span>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wide font-[panchang]">
+                  Featured Products
+                </h2>
+                <p className="text-xs text-neutral-400">Choose up to 4 products shown after the ordered collections on the homepage.</p>
+              </div>
+            </div>
+            <span className="text-[10px] uppercase tracking-widest bg-neutral-800 border border-neutral-700 text-neutral-300 px-3 py-1 font-semibold rounded-none">Max 4</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
+            {featuredProducts.map((product, slotIdx) => (
+              <div key={slotIdx} className="border border-neutral-800 p-4 bg-neutral-950/60 rounded-none">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs uppercase tracking-wider font-bold text-neutral-400">Slot {slotIdx + 1}</span>
+                  {product && (
+                    <button type="button" onClick={() => handleSelectFeaturedProduct(slotIdx, "")} className="text-xs text-red-400 hover:text-red-300 uppercase tracking-wider">Clear</button>
+                  )}
+                </div>
+                <div className="aspect-square bg-neutral-950 border border-neutral-800 mb-3 flex items-center justify-center overflow-hidden">
+                  {product?.imageLink ? <img src={product.imageLink} alt={product.name} className="w-full h-full object-cover" /> : <i className="ri-shopping-bag-3-line text-3xl text-neutral-600" />}
+                </div>
+                <p className="text-xs text-white truncate mb-3">{product?.name || "No product chosen"}</p>
+                <select
+                  value={product?._id || ""}
+                  onChange={(e) => handleSelectFeaturedProduct(slotIdx, e.target.value)}
+                  className="w-full bg-neutral-900 border border-neutral-800 p-2.5 text-xs text-white focus:outline-none focus:border-white rounded-none"
+                >
+                  <option value="">-- Choose product --</option>
+                  {allProducts.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button type="button" onClick={handleSaveFeaturedProducts} disabled={savingFeaturedProducts} className="bg-white hover:bg-neutral-200 text-black font-bold uppercase tracking-wider py-3.5 px-6 text-xs transition-all disabled:opacity-40 flex items-center gap-2 rounded-none shadow">
+              {savingFeaturedProducts ? <><i className="ri-loader-4-line animate-spin"></i> Saving Products...</> : <><i className="ri-save-line"></i> Save Featured Products</>}
             </button>
           </div>
         </section>

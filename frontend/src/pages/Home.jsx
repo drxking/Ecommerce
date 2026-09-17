@@ -55,7 +55,10 @@ const Home = () => {
           : Array.isArray(rawProds?.products)
           ? rawProds.products
           : [];
-        setTopProducts(prodList.slice(0, 6));
+        const configuredProducts = Array.isArray(config?.featuredProducts)
+          ? config.featuredProducts.filter(Boolean)
+          : [];
+        setTopProducts((configuredProducts.length ? configuredProducts : prodList).slice(0, 4));
       } catch (err) {
         console.error("Failed to load home data:", err);
       }
@@ -177,7 +180,27 @@ const Home = () => {
         </div>
       ))}
 
-      {/* 3. Top Three Collections Section (Featured Collection) */}
+      {/* 3. Featured Products (configured in admin, maximum 4) */}
+      {topProducts.length > 0 && (
+        <section className="w-full px-4 md:px-24 py-16 bg-[#0a0a0a] border-t border-neutral-800">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-[panchang] font-bold uppercase tracking-tight text-white">
+                Featured Products
+              </h2>
+              <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mt-1">Selected Highlights</p>
+            </div>
+            <Link to="/products" className="text-xs md:text-sm font-semibold text-neutral-300 hover:text-white flex items-center gap-1 uppercase tracking-wider rounded-none transition">
+              View All Products <i className="ri-arrow-right-line"></i>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-2">
+            {topProducts.map((product) => <Card key={product._id} {...product} />)}
+          </div>
+        </section>
+      )}
+
+      {/* 4. Top Three Collections Section (Featured Collection) */}
       {collection?.data?.length > 0 && (
         <section className="w-full bg-[#0a0a0a] pt-16 pb-6 border-t border-neutral-800">
           <div className="flex items-center justify-between px-4 md:px-12 mb-8">
@@ -189,13 +212,7 @@ const Home = () => {
                 Curated Selection
               </p>
             </div>
-            <Link
-              to="/collections"
-              className="text-xs md:text-sm font-semibold text-neutral-300 hover:text-white flex items-center gap-1 uppercase tracking-wider rounded-none transition"
-              style={{ borderRadius: 0 }}
-            >
-              View All Collections <i className="ri-arrow-right-line"></i>
-            </Link>
+            
           </div>
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
@@ -225,35 +242,6 @@ const Home = () => {
                   )}
                 </div>
               </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 4. Top Products Section (Max 6, border radius: none) */}
-      {topProducts.length > 0 && (
-        <section className="w-full px-4 md:px-24 py-16 bg-[#0a0a0a] border-t border-neutral-800">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-[panchang] font-bold uppercase tracking-tight text-white">
-                Top Products
-              </h2>
-              <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mt-1">
-                Featured Highlights
-              </p>
-            </div>
-            <Link
-              to="/products"
-              className="text-xs md:text-sm font-semibold text-neutral-300 hover:text-white flex items-center gap-1 uppercase tracking-wider rounded-none transition"
-              style={{ borderRadius: 0 }}
-            >
-              View All Products <i className="ri-arrow-right-line"></i>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-2">
-            {topProducts.map((product) => (
-              <Card key={product._id} {...product} />
             ))}
           </div>
         </section>

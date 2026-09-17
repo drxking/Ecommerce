@@ -40,6 +40,10 @@ const homeConfigSchema = mongoose.Schema({
     topThreeCollections: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "collect"
+    }],
+    featuredProducts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "product"
     }]
 }, {
     timestamps: true
