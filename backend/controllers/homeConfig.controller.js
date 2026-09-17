@@ -9,7 +9,9 @@ const formatConfig = (config) => {
     if (!config) return null;
     const obj = config.toObject ? config.toObject() : { ...config };
     if (obj.banner) {
-        obj.banner.mediaLink = obj.banner.mediaLink || obj.banner.videoLink || "/hero.webm";
+        const legacyMedia = obj.banner.mediaLink || obj.banner.videoLink || "";
+        // The old bundled video should never be streamed as a default banner.
+        obj.banner.mediaLink = legacyMedia === "/hero.webm" ? "" : legacyMedia;
         obj.banner.mediaType = obj.banner.mediaType || (obj.banner.mediaLink.match(/\.(mp4|webm|mov|m4v)$/i) ? "video" : "image");
     }
     if (obj.orderedCollections && Array.isArray(obj.orderedCollections)) {
@@ -32,9 +34,9 @@ const getOrCreateConfig = async () => {
         config = await homeConfigModel.create({
             banner: {
                 title: "",
-                videoLink: "/hero.webm",
-                mediaLink: "/hero.webm",
-                mediaType: "video",
+                videoLink: "",
+                mediaLink: "",
+                mediaType: "image",
                 redirectLink: "/"
             },
             orderedCollections: [],

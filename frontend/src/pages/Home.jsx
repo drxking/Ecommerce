@@ -1,32 +1,56 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
-import { useCollection } from "../components/CollectionProvider";
 import Footer from "../components/Footer";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 import axios from "axios";
 import Card from "../components/Card";
 
+const HomeInitialLoader = ({ isExiting }) => (
+  <div className={`fixed inset-0 z-[99999] overflow-hidden ${isExiting ? "bg-transparent" : "bg-black"}`} aria-label="Loading homepage">
+    <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-500 ${isExiting ? "opacity-0" : "opacity-100"}`}>
+      <img src="/tsabinz.png" alt="Tsabinz" className="w-12 md:w-16 invert animate-pulse" />
+    </div>
+    <div className="absolute inset-0">
+      {Array.from({ length: 9 }).map((_, index) => (
+        <div
+          key={index}
+          className={`absolute top-0 bottom-0 bg-black transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${isExiting ? "-translate-y-full" : "translate-y-0"}`}
+          style={{
+            left: `calc(${index} * (100% / 9))`,
+            width: "calc(100% / 9 + 1px)",
+            borderLeft: index === 0 ? "none" : "1px solid #d1d5db33",
+            transitionDelay: isExiting ? `${180 + index * 90}ms` : "0ms",
+          }}
+        />
+      ))}
+    </div>
+  </div>
+);
+
 const Home = () => {
-  let collection = useCollection();
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
-  const [iSloaded, setISloaded] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
+  const [showInitialLoader, setShowInitialLoader] = useState(true);
   const [homeConfig, setHomeConfig] = useState(null);
   const [orderedCollections, setOrderedCollections] = useState([]);
+  const [featuredCollections, setFeaturedCollections] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
-
-  let loader = useRef(null);
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [configRes, prodRes] = await Promise.all([
+        const [configRes, prodRes, collectionsRes] = await Promise.all([
           axios.get(`${import.meta.env.VITE_BASE_URL}/home-config`),
           axios.get(`${import.meta.env.VITE_BASE_URL}/products`),
+          axios.get(`${import.meta.env.VITE_BASE_URL}/collections`),
         ]);
 
         const config = configRes.data?.data || configRes.data;
+        const collectionList = Array.isArray(collectionsRes.data?.data)
+          ? collectionsRes.data.data
+          : Array.isArray(collectionsRes.data)
+          ? collectionsRes.data
+          : [];
         if (config) {
           setHomeConfig(config);
           if (config.orderedCollections?.length > 0) {
@@ -36,15 +60,13 @@ const Home = () => {
               .map((i) => i.collection || i.collect);
             setOrderedCollections(sorted);
           } else {
-            // Fallback to all collections
-            const colsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/collections`);
-            const colList = Array.isArray(colsRes.data?.data)
-              ? colsRes.data.data
-              : Array.isArray(colsRes.data)
-              ? colsRes.data
-              : [];
-            setOrderedCollections(colList);
+            setOrderedCollections(collectionList);
           }
+
+          const configuredCollections = Array.isArray(config.topThreeCollections)
+            ? config.topThreeCollections.filter(Boolean)
+            : [];
+          setFeaturedCollections((configuredCollections.length ? configuredCollections : collectionList.slice(0, 3)).slice(0, 3));
         }
 
         const rawProds = prodRes.data;
@@ -61,19 +83,18 @@ const Home = () => {
         setTopProducts((configuredProducts.length ? configuredProducts : prodList).slice(0, 4));
       } catch (err) {
         console.error("Failed to load home data:", err);
+      } finally {
+        setIsDataReady(true);
       }
     };
     fetchHomeData();
   }, []);
 
-  useGSAP(() => {
-    if (iSloaded) {
-      gsap.to(loader.current, {
-        opacity: 0,
-        duration: 0.7,
-      });
-    }
-  }, [iSloaded]);
+  useEffect(() => {
+    if (!isDataReady) return;
+    const timer = window.setTimeout(() => setShowInitialLoader(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, [isDataReady]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,28 +113,29 @@ const Home = () => {
 
   return (
     <div className="bg-[#0a0a0a] text-white overflow-x-hidden">
+      {showInitialLoader && <HomeInitialLoader isExiting={isDataReady} />}
       <Navbar scrolledLimit={IsScrolled100px} solid={true} />
 
       {/* 1. Hero Banner Video at Top */}
       <div className="hero relative w-screen h-screen flex flex-col items-center justify-center text-white uppercase overflow-hidden">
         <div className="w-full hero-anim overflow-hidden absolute top-0 left-0 h-full flex items-center justify-center">
-          {(homeConfig?.banner?.mediaType || "video") === "image" ? (
+          {homeConfig?.banner?.mediaLink ? (homeConfig.banner.mediaType === "image" ? (
             <img
-              src={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink}
+              src={homeConfig.banner.mediaLink}
               alt={homeConfig?.banner?.title || "Store banner"}
               className="w-full h-full object-cover relative top-0 left-0"
             />
           ) : (
             <video
-              key={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink || "/hero.webm"}
-              src={homeConfig?.banner?.mediaLink || homeConfig?.banner?.videoLink || "/hero.webm"}
+              key={homeConfig.banner.mediaLink}
+              src={homeConfig.banner.mediaLink}
               autoPlay
               muted
               loop
               playsInline
               className="w-full h-full object-cover relative top-0 left-0"
             />
-          )}
+          )) : <div className="w-full h-full bg-[radial-gradient(circle_at_50%_20%,#262626_0%,#0a0a0a_65%)]" />}
 
           {/* Overlay Title & Redirect Link */}
           {(homeConfig?.banner?.title || (homeConfig?.banner?.redirectLink && homeConfig?.banner?.redirectLink !== "/")) && (
@@ -201,7 +223,7 @@ const Home = () => {
       )}
 
       {/* 4. Top Three Collections Section (Featured Collection) */}
-      {collection?.data?.length > 0 && (
+      {featuredCollections.length > 0 && (
         <section className="w-full bg-[#0a0a0a] pt-16 pb-6 border-t border-neutral-800">
           <div className="flex items-center justify-between px-4 md:px-12 mb-8">
             <div>
@@ -216,7 +238,7 @@ const Home = () => {
           </div>
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-            {collection.data.map((e, index) => (
+            {featuredCollections.map((e, index) => (
               <Link
                 to={`/collections/${e._id}`}
                 key={index}

@@ -8,11 +8,21 @@ export const CollectionProvider = ({ children }) => {
   const [isFetched, setIsFetched] = useState(false);
 
   async function fetcher() {
-    let collection = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/collections/three-collection`
-    );
-    setCollection(collection.data);
-    setIsFetched(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/home-config`);
+      const config = response.data?.data || response.data || {};
+      // Navigation only exposes the collections explicitly selected for the
+      // homepage featured-collections section.
+      const data = Array.isArray(config.topThreeCollections)
+        ? config.topThreeCollections.filter(Boolean)
+        : [];
+      setCollection({ data });
+    } catch (error) {
+      console.error("Failed to load navigation collections:", error);
+      setCollection({ data: [] });
+    } finally {
+      setIsFetched(true);
+    }
   }
   useEffect(() => {
     if (!isFetched) {

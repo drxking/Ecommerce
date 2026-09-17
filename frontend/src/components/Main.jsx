@@ -11,7 +11,7 @@ const Main = () => {
   // Banner states
   const [bannerTitle, setBannerTitle] = useState("");
   const [bannerRedirect, setBannerRedirect] = useState("/");
-  const [currentVideoUrl, setCurrentVideoUrl] = useState("/hero.webm");
+  const [currentVideoUrl, setCurrentVideoUrl] = useState("");
   const [bannerMediaType, setBannerMediaType] = useState("video");
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
@@ -63,7 +63,7 @@ const Main = () => {
       if (config.banner) {
         setBannerTitle(config.banner.title || "");
         setBannerRedirect(config.banner.redirectLink || "/");
-        setCurrentVideoUrl(config.banner.mediaLink || config.banner.videoLink || "/hero.webm");
+        setCurrentVideoUrl(config.banner.mediaLink || "");
         setBannerMediaType(config.banner.mediaType || "video");
       }
 

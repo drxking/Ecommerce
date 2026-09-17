@@ -8,7 +8,7 @@ const homeConfigSchema = mongoose.Schema({
         },
         videoLink: {
             type: String,
-            default: "/hero.webm"
+            default: ""
         },
         // `videoLink` is retained for existing clients and records. New code
         // reads mediaLink/mediaType, which support either a banner image or video.
