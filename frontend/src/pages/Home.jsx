@@ -5,6 +5,22 @@ import Footer from "../components/Footer";
 import axios from "axios";
 import Card from "../components/Card";
 
+const HOMEPAGE_CACHE_KEY = "homepage-data-v1";
+
+const readHomepageCache = () => {
+  try {
+    const cached = sessionStorage.getItem(HOMEPAGE_CACHE_KEY);
+    return cached ? JSON.parse(cached) : null;
+  } catch {
+    return null;
+  }
+};
+
+const isBrowserReload = () => {
+  const navigation = performance.getEntriesByType("navigation")[0];
+  return navigation?.type === "reload";
+};
+
 const HomeInitialLoader = ({ isExiting }) => (
   <div className={`fixed inset-0 z-[99999] overflow-hidden ${isExiting ? "bg-transparent" : "bg-black"}`} aria-label="Loading homepage">
     <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-500 ${isExiting ? "opacity-0" : "opacity-100"}`}>
@@ -28,16 +44,22 @@ const HomeInitialLoader = ({ isExiting }) => (
 );
 
 const Home = () => {
+  const [cachedHomeData] = useState(readHomepageCache);
+  const [isReload] = useState(isBrowserReload);
   const [IsScrolled100px, setIsScrolled100px] = useState(false);
-  const [isDataReady, setIsDataReady] = useState(false);
-  const [showInitialLoader, setShowInitialLoader] = useState(true);
-  const [homeConfig, setHomeConfig] = useState(null);
-  const [orderedCollections, setOrderedCollections] = useState([]);
-  const [featuredCollections, setFeaturedCollections] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
+  const [isDataReady, setIsDataReady] = useState(() => Boolean(cachedHomeData) && !isReload);
+  const [showInitialLoader, setShowInitialLoader] = useState(() => !cachedHomeData || isReload);
+  const [homeConfig, setHomeConfig] = useState(cachedHomeData?.homeConfig || null);
+  const [orderedCollections, setOrderedCollections] = useState(cachedHomeData?.orderedCollections || []);
+  const [featuredCollections, setFeaturedCollections] = useState(cachedHomeData?.featuredCollections || []);
+  const [topProducts, setTopProducts] = useState(cachedHomeData?.topProducts || []);
 
   useEffect(() => {
     const fetchHomeData = async () => {
+      // A route revisit in the same tab uses the cached snapshot. Browser
+      // reloads intentionally fetch a new snapshot before revealing the page.
+      if (cachedHomeData && !isReload) return;
+
       try {
         const [configRes, prodRes, collectionsRes] = await Promise.all([
           axios.get(`${import.meta.env.VITE_BASE_URL}/home-config`),
@@ -51,23 +73,16 @@ const Home = () => {
           : Array.isArray(collectionsRes.data)
           ? collectionsRes.data
           : [];
-        if (config) {
-          setHomeConfig(config);
-          if (config.orderedCollections?.length > 0) {
-            const sorted = config.orderedCollections
+        const ordered = config?.orderedCollections?.length > 0
+          ? config.orderedCollections
               .filter((i) => i && (i.collection || i.collect))
               .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((i) => i.collection || i.collect);
-            setOrderedCollections(sorted);
-          } else {
-            setOrderedCollections(collectionList);
-          }
-
-          const configuredCollections = Array.isArray(config.topThreeCollections)
-            ? config.topThreeCollections.filter(Boolean)
-            : [];
-          setFeaturedCollections((configuredCollections.length ? configuredCollections : collectionList.slice(0, 3)).slice(0, 3));
-        }
+              .map((i) => i.collection || i.collect)
+          : collectionList;
+        const configuredCollections = Array.isArray(config?.topThreeCollections)
+          ? config.topThreeCollections.filter(Boolean)
+          : [];
+        const featured = (configuredCollections.length ? configuredCollections : collectionList.slice(0, 3)).slice(0, 3);
 
         const rawProds = prodRes.data;
         const prodList = Array.isArray(rawProds)
@@ -80,7 +95,19 @@ const Home = () => {
         const configuredProducts = Array.isArray(config?.featuredProducts)
           ? config.featuredProducts.filter(Boolean)
           : [];
-        setTopProducts((configuredProducts.length ? configuredProducts : prodList).slice(0, 4));
+        const products = (configuredProducts.length ? configuredProducts : prodList).slice(0, 4);
+        const snapshot = {
+          homeConfig: config || null,
+          orderedCollections: ordered,
+          featuredCollections: featured,
+          topProducts: products,
+        };
+
+        setHomeConfig(snapshot.homeConfig);
+        setOrderedCollections(snapshot.orderedCollections);
+        setFeaturedCollections(snapshot.featuredCollections);
+        setTopProducts(snapshot.topProducts);
+        sessionStorage.setItem(HOMEPAGE_CACHE_KEY, JSON.stringify(snapshot));
       } catch (err) {
         console.error("Failed to load home data:", err);
       } finally {
